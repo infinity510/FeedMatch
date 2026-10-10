@@ -56,8 +56,8 @@ function startBgMusic() {
         bgMusic = new Audio('assets/subway.mp3');
         bgMusic.loop = true;
     }
-    // Slow down the music a bit and keep it constant
-    bgMusic.playbackRate = 0.85; 
+    // Speed up the music to ~1.5x (1.75x of previous 0.85)
+    bgMusic.playbackRate = 1.5; 
     bgMusic.volume = 0.5;
     
     // Play with a catch block for any autoplay policies
