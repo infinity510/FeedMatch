@@ -1,0 +1,60 @@
+/* style.css */
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.draggable {
+    cursor: grab;
+    user-select: none;
+}
+.draggable:active {
+    cursor: grabbing;
+}
+
+.drop-zone {
+    transition: all 0.2s ease;
+}
+
+.drop-zone.drag-over {
+    background-color: #e0e7ff; /* indigo-100 */
+    border-color: #6366f1; /* indigo-500 */
+    transform: scale(1.02);
+}
+
+.dark .drop-zone.drag-over {
+    background-color: #312e81; /* indigo-900 */
+    border-color: #818cf8; /* indigo-400 */
+}
+
+/* Custom Scrollbar for better UI */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* Animations */
+@keyframes popIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+#modal-content {
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
