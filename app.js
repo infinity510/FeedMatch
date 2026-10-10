@@ -49,51 +49,36 @@ function playFail() {
     setTimeout(() => playTone(250, 'sawtooth', 0.4, 0.5), 150);
 }
 
-let ytPlayer;
-function onYouTubeIframeAPIReady() {
-    ytPlayer = new YT.Player('yt-player', {
-        height: '1',
-        width: '1',
-        videoId: 'gH-N72n_mO8', // Subway Surfers Theme
-        playerVars: {
-            'autoplay': 0,
-            'loop': 1,
-            'playlist': 'gH-N72n_mO8',
-            'controls': 0
-        }
-    });
-}
+let bgMusic;
 
 function startBgMusic() {
-    if (ytPlayer && ytPlayer.playVideo) {
-        ytPlayer.setPlaybackRate(1.0);
-        ytPlayer.setVolume(50);
-        ytPlayer.playVideo();
+    if (!bgMusic) {
+        bgMusic = new Audio('assets/subway.mp3');
+        bgMusic.loop = true;
     }
+    bgMusic.playbackRate = 1.0;
+    bgMusic.volume = 0.5;
+    
+    // Play with a catch block for any autoplay policies
+    bgMusic.play().catch(e => console.log('Audio blocked by browser:', e));
 }
 
 function updateBgMusicIntensity(diff) {
-    if (ytPlayer && ytPlayer.setPlaybackRate) {
-        // YT playback rates: 1, 1.25, 1.5, 1.75, 2.0
+    if (bgMusic) {
+        // Max speed ~1.5x to 2.0x
         const newRate = 1.0 + (diff / 120) * 1.0; 
+        bgMusic.playbackRate = Math.min(2.0, newRate);
         
-        let rateToSet = 1.0;
-        if (newRate >= 2.0) rateToSet = 2.0;
-        else if (newRate >= 1.75) rateToSet = 1.75;
-        else if (newRate >= 1.5) rateToSet = 1.5;
-        else if (newRate >= 1.25) rateToSet = 1.25;
-        
-        ytPlayer.setPlaybackRate(rateToSet);
-        
-        // Increase volume
-        const newVol = 50 + (diff / 120) * 50;
-        ytPlayer.setVolume(Math.min(100, newVol));
+        // Volume goes from 0.5 up to 1.0 over 120 seconds
+        const newVol = 0.5 + (diff / 120) * 0.5;
+        bgMusic.volume = Math.min(1.0, newVol);
     }
 }
 
 function stopBgMusic() {
-    if (ytPlayer && ytPlayer.stopVideo) {
-        ytPlayer.stopVideo();
+    if (bgMusic) {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
     }
 }
 
