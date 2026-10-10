@@ -56,7 +56,8 @@ function startBgMusic() {
         bgMusic = new Audio('assets/subway.mp3');
         bgMusic.loop = true;
     }
-    bgMusic.playbackRate = 1.0;
+    // Slow down the music a bit and keep it constant
+    bgMusic.playbackRate = 0.85; 
     bgMusic.volume = 0.5;
     
     // Play with a catch block for any autoplay policies
@@ -64,15 +65,8 @@ function startBgMusic() {
 }
 
 function updateBgMusicIntensity(diff) {
-    if (bgMusic) {
-        // Max speed ~1.5x to 2.0x
-        const newRate = 1.0 + (diff / 120) * 1.0; 
-        bgMusic.playbackRate = Math.min(2.0, newRate);
-        
-        // Volume goes from 0.5 up to 1.0 over 120 seconds
-        const newVol = 0.5 + (diff / 120) * 0.5;
-        bgMusic.volume = Math.min(1.0, newVol);
-    }
+    // Dynamic intensity disabled as requested
+    // Music speed and volume remain constant throughout the game
 }
 
 function stopBgMusic() {
