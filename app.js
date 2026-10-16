@@ -733,7 +733,7 @@ function renderDropZones() {
         avatarWrapper.className = 'relative shrink-0';
         const avatar = document.createElement('img');
         avatar.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${p}&backgroundColor=111827`;
-        avatar.className = 'w-10 h-10 md:w-11 md:h-11 rounded-full border-2 border-cyan-500/50 bg-gray-900 object-cover';
+        avatar.className = 'w-11 h-11 md:w-12 md:h-12 rounded-full border-2 border-cyan-500/50 bg-gray-900 object-cover';
         avatarWrapper.appendChild(avatar);
 
         // Status pip
@@ -749,13 +749,13 @@ function renderDropZones() {
         info.className = 'flex flex-col min-w-0';
 
         const nameLabel = document.createElement('span');
-        nameLabel.className = 'font-bold font-orbitron text-xs md:text-sm text-cyan-200 truncate tracking-wide';
+        nameLabel.className = 'font-bold font-orbitron text-sm md:text-base text-cyan-200 truncate tracking-wide';
         nameLabel.textContent = p;
         info.appendChild(nameLabel);
 
         // Hunger Energy Bar
         const hungerTrack = document.createElement('div');
-        hungerTrack.className = 'hunger-track w-24 md:w-32 my-1';
+        hungerTrack.className = 'hunger-track w-28 md:w-36 my-1.5';
         const hungerBar = document.createElement('div');
         hungerBar.className = 'hunger-bar-hungry';
         hungerTrack.appendChild(hungerBar);
@@ -763,11 +763,11 @@ function renderDropZones() {
 
         // Preferred dishes chips
         const chipsContainer = document.createElement('div');
-        chipsContainer.className = 'flex flex-wrap gap-1';
+        chipsContainer.className = 'flex flex-wrap gap-1.5';
         const prefs = currentPrefs[p] || [];
         prefs.forEach(item => {
             const chip = document.createElement('span');
-            chip.className = 'text-[9px] font-mono px-1.5 py-0.5 bg-gray-950/90 text-cyan-300 border border-cyan-500/30 rounded-md';
+            chip.className = 'text-xs font-mono px-2 py-0.5 bg-gray-950/90 text-cyan-300 border border-cyan-500/30 rounded-md';
             chip.textContent = FOOD[item] ? FOOD[item].split(' ')[0] + ' ' + item : item;
             chipsContainer.appendChild(chip);
         });
@@ -778,7 +778,7 @@ function renderDropZones() {
 
         // Drop Area Slot
         const dropArea = document.createElement('div');
-        dropArea.className = 'item-container flex-grow flex items-center justify-end min-h-[42px] min-w-[120px] border border-dashed border-gray-700/60 rounded-xl p-1 bg-gray-950/40 transition-colors';
+        dropArea.className = 'item-container flex-grow flex items-center justify-end min-h-[46px] min-w-[130px] border border-dashed border-gray-700/60 rounded-xl p-1 bg-gray-950/40 transition-colors';
         dropArea.dataset.empty = 'true';
         zone.appendChild(dropArea);
 
@@ -801,17 +801,17 @@ function renderFoodItems(items) {
 
 function createFoodElement(item) {
     const el = document.createElement('div');
-    el.className = 'draggable cyber-btn bg-gradient-to-r from-amber-950/60 to-orange-950/60 border border-amber-500/40 hover:border-amber-400 rounded-xl px-3 py-2 shadow-md text-amber-200 font-bold font-rajdhani text-xs md:text-sm flex items-center justify-between gap-2 transition-all';
+    el.className = 'draggable cyber-btn bg-gradient-to-r from-amber-950/60 to-orange-950/60 border border-amber-500/40 hover:border-amber-400 rounded-xl px-3.5 py-2.5 shadow-md text-amber-200 font-bold font-rajdhani text-sm md:text-base flex items-center justify-between gap-2.5 transition-all';
     el.draggable = true;
     el.dataset.item = item;
 
     const labelSpan = document.createElement('span');
-    labelSpan.className = 'flex items-center gap-1.5 pointer-events-none';
+    labelSpan.className = 'flex items-center gap-2 pointer-events-none text-sm md:text-base';
     labelSpan.textContent = FOOD[item] || item;
     el.appendChild(labelSpan);
 
     const gripSpan = document.createElement('span');
-    gripSpan.className = 'text-[10px] text-amber-500/60 pointer-events-none font-mono';
+    gripSpan.className = 'text-xs text-amber-500/60 pointer-events-none font-mono';
     gripSpan.textContent = '::';
     el.appendChild(gripSpan);
 
