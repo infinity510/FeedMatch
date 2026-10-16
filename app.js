@@ -303,7 +303,7 @@ const FOOD = {
 // ==========================================
 const ROUNDS = [
     {
-        title: "Stage 1: Sector Alpha (The Warmup)",
+        title: "Stage 1: The Warmup 🍕",
         tag: "WARMUP",
         getItems: () => ["Pizza", "Burger", "Momo", "Samosa", "Vada Pav"],
         getPrefs: (p) => ({
@@ -313,11 +313,13 @@ const ROUNDS = [
             [p[3]]: ["Samosa"],
             [p[4]]: ["Vada Pav"]
         }),
-        desc: (p) => `<strong>DIRECT BIJECTIVE MATCHING:</strong><br>${p[0]} ➔ Pizza | ${p[1]} ➔ Burger | ${p[2]} ➔ Momo | ${p[3]} ➔ Samosa | ${p[4]} ➔ Vada Pav.<br><span class="text-cyan-400 font-mono text-xs">Tactical Hint: Each agent has degree deg(v) = 1. Drag matching dishes to receptacles!</span>`,
+        desc: (p) => `<strong>Simple Matching:</strong> Every friend has just one favorite food!<br>
+• ${p[0]} ➔ Pizza &nbsp;|&nbsp; ${p[1]} ➔ Burger &nbsp;|&nbsp; ${p[2]} ➔ Momo &nbsp;|&nbsp; ${p[3]} ➔ Samosa &nbsp;|&nbsp; ${p[4]} ➔ Vada Pav.<br>
+<span class="text-cyan-400 font-semibold mt-1.5 inline-block">💡 Hint: Drag each friend's favorite dish onto their plate!</span>`,
         impossible: false
     },
     {
-        title: "Stage 2: The Greedy Trap (Think Twice)",
+        title: "Stage 2: Think Twice 🤔",
         tag: "GREEDY",
         getItems: () => ["Pizza", "Burger", "Momo", "Samosa", "Vada Pav"],
         getPrefs: (p) => ({
@@ -327,11 +329,14 @@ const ROUNDS = [
             [p[3]]: ["Samosa", "Vada Pav"],
             [p[4]]: ["Vada Pav"]
         }),
-        desc: (p) => `<strong>DEGREE HEURISTIC CHALLENGE:</strong><br><strong>${p[0]}</strong>: Pizza, Momo<br><strong>${p[1]}</strong>: Momo, Burger<br><strong>${p[2]}</strong>: Burger, Samosa<br><strong>${p[3]}</strong>: Samosa, Vada Pav<br><strong>${p[4]}</strong>: Vada Pav (Picky eater!)<br><span class="text-amber-400 font-mono text-xs">⚠️ Greedy Trap: If an agent consumes another's sole option, deadlock ensues! Feed deg(v)=1 first.</span>`,
+        desc: (p) => `<strong>Feed the Pickiest Friend First:</strong><br>
+• <strong>${p[4]}</strong> is very picky and ONLY eats Vada Pav!<br>
+• Other friends have 2 choices.<br>
+<span class="text-amber-300 font-semibold mt-1.5 inline-block">💡 Golden Rule: Feed ${p[4]} first! If someone else takes their only food, ${p[4]} will stay hungry!</span>`,
         impossible: false
     },
     {
-        title: "Stage 3A: Rescue Protocol (Augmenting Path)",
+        title: "Stage 3A: The Rescue Mission 🤝",
         tag: "RESCUE",
         getItems: () => ["Chaat", "Pav Bhaji", "Maggi", "Pizza", "Burger"],
         getPrefs: (p) => ({
@@ -341,11 +346,13 @@ const ROUNDS = [
             [p[3]]: ["Pizza", "Burger"],
             [p[4]]: ["Burger"]
         }),
-        desc: (p) => `<strong>BERGE'S ALTERNATING CHAIN:</strong><br><strong>${p[0]}</strong>: Chaat, Pav Bhaji<br><strong>${p[1]}</strong>: Pav Bhaji, Maggi<br><strong>${p[2]}</strong>: Maggi, Pizza<br><strong>${p[3]}</strong>: Pizza, Burger<br><strong>${p[4]}</strong>: Burger<br><span class="text-fuchsia-400 font-mono text-xs">⚡ Stuck? Hit RESCUE to let Berge's Augmenting Path shift assignments automatically!</span>`,
+        desc: (p) => `<strong>Friendly Plate Swapping:</strong><br>
+Friends like different foods. If someone gets stuck with no plate left, don't worry!<br>
+<span class="text-fuchsia-300 font-semibold mt-1.5 inline-block">💡 Need Help? Click the <strong>Rescue</strong> button to let your friends trade dishes so everyone gets fed!</span>`,
         impossible: false
     },
     {
-        title: "Stage 3B: Hall's Paradox (Bottleneck Alpha)",
+        title: "Stage 3B: The Snack Dilemma 🛑",
         tag: "HALL-A",
         getItems: () => ["Chaat", "Maggi", "Pizza", "Burger"],
         getPrefs: (p) => ({
@@ -355,11 +362,14 @@ const ROUNDS = [
             [p[3]]: ["Pizza", "Burger"],
             [p[4]]: ["Pizza", "Burger"]
         }),
-        desc: (p) => `<strong>HALL'S MARRIAGE THEOREM CERTIFICATE:</strong><br><strong>${p[0]}, ${p[1]}, & ${p[2]}</strong>: Only eat Chaat or Maggi.<br><strong>${p[3]} & ${p[4]}</strong>: Only eat Pizza or Burger.<br><span class="text-rose-400 font-mono text-xs">🛑 Analyze subset sizes! Can 3 agents share only 2 dishes? If impossible, declare it!</span>`,
+        desc: (p) => `<strong>Count the Snacks Carefully:</strong><br>
+• <strong>${p[0]}, ${p[1]}, & ${p[2]}</strong> (3 friends) will ONLY eat Chaat or Maggi (only 2 dishes!).<br>
+• <strong>${p[3]} & ${p[4]}</strong> only eat Pizza or Burger.<br>
+<span class="text-rose-300 font-semibold mt-1.5 inline-block">💡 Question: Can 3 hungry friends share only 2 plates without anyone starving? If it's impossible, hit the red <strong>Impossible!</strong> button!</span>`,
         impossible: true
     },
     {
-        title: "Stage 4: 5-Cycle Overdrive (No Degree-1 Safety Net!)",
+        title: "Stage 4: Food Chain Mystery 🔄",
         tag: "5-CYCLE",
         getItems: () => ["Pizza", "Burger", "Pasta", "Momo", "Chaat"],
         getPrefs: (p) => ({
@@ -369,11 +379,13 @@ const ROUNDS = [
             [p[3]]: ["Momo", "Chaat"],
             [p[4]]: ["Chaat", "Pizza"]
         }),
-        desc: (p) => `<strong>SYMMETRIC CYCLE C5:</strong><br><strong>${p[0]}</strong>: Pizza, Burger<br><strong>${p[1]}</strong>: Burger, Pasta<br><strong>${p[2]}</strong>: Pasta, Momo<br><strong>${p[3]}</strong>: Momo, Chaat<br><strong>${p[4]}</strong>: Chaat, Pizza<br><span class="text-cyan-400 font-mono text-xs">Every agent has degree 2! No degree-1 dead giveaway. An incorrect greedy pick creates a parity trap.</span>`,
+        desc: (p) => `<strong>The Equal Choice Circle:</strong><br>
+Every single friend has exactly 2 favorite foods! Nobody is pickier than anyone else.<br>
+<span class="text-cyan-300 font-semibold mt-1.5 inline-block">💡 Think Ahead: Plan out who gets what so the choices connect in a neat circle without trapping anyone!</span>`,
         impossible: false
     },
     {
-        title: "Stage 5: The Phantom Bottleneck (Disguised Hall's Failure)",
+        title: "Stage 5: The Secret Trick 🔍",
         tag: "HALL-B",
         getItems: () => ["Pizza", "Burger", "Momo", "Samosa", "Pav Bhaji"],
         getPrefs: (p) => ({
@@ -383,11 +395,14 @@ const ROUNDS = [
             [p[3]]: ["Samosa"],
             [p[4]]: ["Samosa"]
         }),
-        desc: (p) => `<strong>DISGUISED DEFICIT (5 DISHES ON TABLE):</strong><br><strong>${p[0]}, ${p[1]}, ${p[2]}</strong> share Pizza, Burger, Momo.<br><strong>${p[3]} & ${p[4]}</strong> both will ONLY eat Samosa.<br><span class="text-rose-400 font-mono text-xs">⚠️ Looks like 5 items for 5 people! But examine subset S = {${p[3]}, ${p[4]}}. Is |N(S)| &ge; |S|?</span>`,
+        desc: (p) => `<strong>Look Out for the Hidden Trap:</strong><br>
+There are 5 plates on the table for 5 friends... looks easy, right? But look closer:<br>
+• <strong>${p[3]} & ${p[4]}</strong> will BOTH eat ONLY Samosa (and there is only 1 plate of Samosa!).<br>
+<span class="text-rose-300 font-semibold mt-1.5 inline-block">💡 Detective Eye: Can 2 friends both eat the same single plate of Samosa? Check if it's impossible!</span>`,
         impossible: true
     },
     {
-        title: "Stage 6: Cyber Feast (Grandmaster Showdown)",
+        title: "Stage 6: Master Food Festival 🏆",
         tag: "FINAL",
         getItems: () => ["Pizza", "Burger", "Pasta", "Momo", "Pav Bhaji"],
         getPrefs: (p) => ({
@@ -397,7 +412,9 @@ const ROUNDS = [
             [p[3]]: ["Pasta", "Momo"],
             [p[4]]: ["Momo", "Pav Bhaji"]
         }),
-        desc: (p) => `<strong>COMPLEX BRANCHING NEXUS:</strong><br><strong>${p[0]}</strong>: Pizza, Pasta, Pav Bhaji<br><strong>${p[1]}</strong>: Pizza, Burger<br><strong>${p[2]}</strong>: Burger, Pasta<br><strong>${p[3]}</strong>: Pasta, Momo<br><strong>${p[4]}</strong>: Momo, Pav Bhaji<br><span class="text-emerald-400 font-mono text-xs">High-density preference graph with intersecting augmenting branches. Master the allocation!</span>`,
+        desc: (p) => `<strong>The Grand Feast:</strong><br>
+Lots of tasty street food options and shared favorites! Can you find the perfect match for all 5 friends?<br>
+<span class="text-emerald-300 font-semibold mt-1.5 inline-block">💡 Pro Gamer Tip: Feed the friends with fewer options first, or use a Rescue swap if you get stuck!</span>`,
         impossible: false
     }
 ];
@@ -852,11 +869,11 @@ function setupDropZoneEvents(zone, isPool = false) {
                 comboMultiplier = 1.0;
                 updateComboDisplay();
                 showModal(
-                    '🚫 INCOMPATIBLE DISH!',
-                    `${person} rejects ${item}!<br><span class="text-xs text-gray-400">Review ${person}'s preferences: [${currentPrefs[person].join(', ')}]</span>`,
-                    'Acknowledged',
+                    '🚫 Not My Favorite!',
+                    `<strong>${person}</strong> doesn't eat ${item}!<br><span class="text-xs text-gray-400">Check their favorite food badges below their name: [${currentPrefs[person].join(', ')}]</span>`,
+                    'Got It!',
                     () => closeModal(),
-                    '🛑'
+                    '😋'
                 );
                 return;
             }
@@ -1019,7 +1036,7 @@ btnRescue.addEventListener('click', () => {
     const unassignedPerson = players.find(p => !matchLeft[p]);
     if (!unassignedPerson) {
         playFail();
-        showModal('💡 SQUAD ALREADY SATISFIED', 'Every agent currently has a dish assigned!', 'OK', () => closeModal(), 'ℹ️');
+        showModal('💡 Everyone is Fed!', 'Every friend already has a plate on the table!', 'OK', () => closeModal(), '🍕');
         return;
     }
 
@@ -1084,8 +1101,8 @@ btnRescue.addEventListener('click', () => {
 
         showPartyPopper();
         showModal(
-            '⚡ AUGMENTING PATH EXECUTED!',
-            `<strong>Berge's Lemma in Action:</strong><br>Found alternating chain starting at hungry agent <strong>${unassignedPerson}</strong>.<br>Edges inverted successfully, increasing total cardinality by +1!`,
+            '🤝 FRIENDLY PLATE SWAP!',
+            `Friends traded dishes in a chain to make room for <strong>${unassignedPerson}</strong>!<br>Now everyone has a plate to enjoy!`,
             'Awesome!',
             () => closeModal(),
             '✨'
@@ -1093,11 +1110,11 @@ btnRescue.addEventListener('click', () => {
     } else {
         playFail();
         showModal(
-            '🛑 RESCUE BLOCKED',
-            'No augmenting path exists from the unassigned agent. Check for an insolubility bottleneck!',
-            'OK',
+            '🛑 Plate Swap Blocked',
+            'No combination of trades can free up food for everyone right now. Check if this puzzle is actually impossible!',
+            'Got It',
             () => closeModal(),
-            '🥀'
+            '💡'
         );
     }
 });
@@ -1118,15 +1135,14 @@ btnImpossible.addEventListener('click', () => {
             showPartyPopper();
 
             const violator = findHallViolator(players, currentPrefs);
-            let mathExplanation = "<strong>Hall's Marriage Theorem Verified:</strong><br>";
+            let mathExplanation = "";
             if (violator) {
-                mathExplanation += `Violating Subset <em>S</em> = {${violator.subset.join(', ')}}<br>` +
-                                  `Size |S| = ${violator.subset.length}<br>` +
-                                  `Neighborhood <em>N(S)</em> = {${violator.neighborhood.join(', ')}}<br>` +
-                                  `Size |N(S)| = ${violator.neighborhood.length}<br>` +
-                                  `<span class="text-rose-400 font-bold font-mono">|N(S)| = ${violator.neighborhood.length} &lt; |S| = ${violator.subset.length}</span> (Deficit detected!)`;
+                mathExplanation = `<strong>You Found the Food Trap! 🕵️</strong><br><br>` +
+                                  `Look at <strong>${violator.subset.join(', ')}</strong> (${violator.subset.length} friends) — ` +
+                                  `they only eat <strong>${violator.neighborhood.join(', ')}</strong> (${violator.neighborhood.length} dishes)!<br><br>` +
+                                  `<span class="text-rose-300 font-bold font-rajdhani text-base">${violator.subset.length} friends cannot share only ${violator.neighborhood.length} plates! Someone was bound to go hungry.</span>`;
             } else {
-                mathExplanation += "Total food options are strictly smaller than the subgroup of hungry agents!";
+                mathExplanation = "There are more hungry friends than food plates available on the table!";
             }
 
             const bonus = 2500;
@@ -1134,9 +1150,9 @@ btnImpossible.addEventListener('click', () => {
             scoreCounter.textContent = score.toLocaleString();
 
             showModal(
-                '🧮 BOTTLENECK CERTIFIED!',
-                `${mathExplanation}<br><br><span class="text-emerald-400 font-bold font-orbitron">+${bonus} TACTICAL PTS</span>`,
-                'Proceed to Next Round',
+                '🎯 BOTTLENECK SOLVED!',
+                `${mathExplanation}<br><br><span class="text-emerald-400 font-bold font-orbitron text-sm">+${bonus} SMART BONUS</span>`,
+                'Next Round ➔',
                 () => {
                     closeModal();
                     advanceRound();
@@ -1152,11 +1168,11 @@ btnImpossible.addEventListener('click', () => {
         updateComboDisplay();
 
         showModal(
-            '❌ ERRONEOUS CLAIM!',
-            `This puzzle <strong>IS SOLVABLE</strong>! A complete saturating matching exists.<br><span class="text-rose-400 font-mono text-xs">Penalty: -300 PTS. Try re-evaluating minimum degree vertices!</span>`,
+            '💡 Wait, Don\'t Give Up!',
+            `This puzzle <strong>CAN be solved</strong>! Every friend can get their favorite food.<br><br><span class="text-amber-300 text-xs">Secret Tip: Start by feeding the friend who has the fewest choices! (-300 PTS)</span>`,
             'Try Again',
             () => closeModal(),
-            '⚠️'
+            '💪'
         );
     }
 });
@@ -1239,11 +1255,11 @@ btnSubmit.addEventListener('click', () => {
         comboMultiplier = 1.0;
         updateComboDisplay();
         showModal(
-            '⚠️ INCOMPLETE ASSIGNMENT',
-            `Only ${matchedCount}/${players.length} agents are fed! Every agent must have an individual dish.`,
-            'Resume',
+            '⚠️ Someone is Still Hungry!',
+            `Only ${matchedCount} out of ${players.length} friends have a plate! Give everyone food before submitting!`,
+            'Got It!',
             () => closeModal(),
-            '🛑'
+            '🍲'
         );
     }
 });
