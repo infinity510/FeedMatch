@@ -1,0 +1,329 @@
+% Discrete Mathematics (MAL2190), IIT Jodhpur
+% Common project report template: Build a Game, Discover the Mathematics
+% Upload this file to Overleaf and compile with pdfLaTeX (twice).
+% This source is self-contained. An optional IITJ_COLOURED.png may be placed
+% in the same folder to display the institute logo.
+%
+% STUDENT INSTRUCTIONS
+% 1. Edit the four metadata commands below and all bracketed placeholders.
+% 2. Keep the section order and common formatting. Add pages as needed.
+% 3. Delete unused example rows and add your own figures/tables where useful.
+% 4. Set \showguidancefalse before final submission to hide guidance boxes.
+%    This does NOT hide unfilled placeholders: replace every one of them.
+% 5. The page breaks below organise the preview; move/remove them as needed.
+% 6. No page limit, deadline, or marking scheme is specified by this template.
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=1in,headheight=15pt]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{array,tabularx,longtable,booktabs}
+\usepackage{enumitem}
+\usepackage{fancyhdr,lastpage}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+
+% ---------- EDIT THESE DETAILS ----------
+\newcommand{\GameTitle}{[Title of the game or puzzle]}
+\newcommand{\GroupNumber}{[Group number]}
+\newcommand{\SubmissionDate}{[DD Month YYYY]}
+\newcommand{\MathConcepts}{[Main discrete mathematics concept(s)]}
+% ----------------------------------------
+
+\newif\ifshowguidance
+\showguidancetrue % Change to \showguidancefalse for the completed report.
+\definecolor{guidetext}{gray}{0.32}
+\definecolor{guidebg}{gray}{0.95}
+\newcommand{\placeholder}[1]{\textit{[#1]}}
+\newcommand{\guidance}[1]{%
+  \ifshowguidance
+    \par\smallskip\noindent
+    \begingroup\setlength{\fboxsep}{8pt}%
+    \colorbox{guidebg}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{%
+      \small\color{guidetext}#1}}\endgroup\par\smallskip
+  \fi}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlength{\emergencystretch}{2em}
+\renewcommand{\arraystretch}{1.3}
+\setlist{leftmargin=*,itemsep=3pt,topsep=4pt,parsep=0pt}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{13pt}{5pt}
+\titlespacing*{\subsection}{0pt}{9pt}{3pt}
+\raggedbottom
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Discrete Mathematics (MAL2190)}
+\fancyhead[R]{\small Project Report}
+\fancyfoot[L]{\footnotesize IIT Jodhpur}
+\fancyfoot[R]{\footnotesize Page \thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\hypersetup{
+  pdftitle={Discrete Mathematics - Project Report Template},
+  pdfsubject={Build a Game, Discover the Mathematics}
+}
+
+\begin{document}
+\thispagestyle{plain}
+
+\begin{center}
+  \IfFileExists{IITJ_COLOURED.png}{%
+    \includegraphics[width=1.6cm]{IITJ_COLOURED.png}\par\vspace{6pt}}{}
+  {\large\bfseries Indian Institute of Technology Jodhpur\par}
+  \vspace{4pt}
+  {\large\bfseries Discrete Mathematics (MAL2190)\par}
+  \vspace{10pt}
+  \rule{\textwidth}{0.6pt}\par
+  \vspace{6pt}
+  {\LARGE\bfseries Project Report\par}
+  \vspace{5pt}
+  {\large Build a Game, Discover the Mathematics\par}
+  \vspace{6pt}
+  \rule{\textwidth}{0.6pt}\par
+  \vspace{13pt}
+  {\Large\bfseries \GameTitle\par}
+\end{center}
+
+\vspace{5pt}
+\begin{tabularx}{\textwidth}{@{}P{3.8cm}Y@{}}
+\textbf{Group number} & \GroupNumber \\
+\textbf{Submission date} & \SubmissionDate \\
+\textbf{Concept(s)} & \MathConcepts \\
+\end{tabularx}
+
+\vspace{9pt}
+\textbf{Group members (10 students)}
+
+\begin{tabularx}{\textwidth}{@{}P{1cm}Y P{4cm}@{}}
+\toprule
+\textbf{No.} & \textbf{Name} & \textbf{Roll number} \\
+\midrule
+1 & \placeholder{Name of member 1} & \placeholder{Roll number} \\
+2 & \placeholder{Name of member 2} & \placeholder{Roll number} \\
+3 & \placeholder{Name of member 3} & \placeholder{Roll number} \\
+4 & \placeholder{Name of member 4} & \placeholder{Roll number} \\
+5 & \placeholder{Name of member 5} & \placeholder{Roll number} \\
+6 & \placeholder{Name of member 6} & \placeholder{Roll number} \\
+7 & \placeholder{Name of member 7} & \placeholder{Roll number} \\
+8 & \placeholder{Name of member 8} & \placeholder{Roll number} \\
+9 & \placeholder{Name of member 9} & \placeholder{Roll number} \\
+10 & \placeholder{Name of member 10} & \placeholder{Roll number} \\
+\bottomrule
+\end{tabularx}
+
+\vspace{10pt}
+\guidance{\textbf{Using this template.} Replace all bracketed text with your
+group's work. Keep the main section headings and formatting so the reports can
+be combined for the course website. Add space and pages where needed; the
+preview length is not a prescribed page limit. Remove guidance boxes before
+submission. Explain the game so that a reader can recreate and play it.}
+
+\newpage
+\section{The Game or Puzzle}
+
+\subsection{Overview and objective}
+\placeholder{Introduce the game in a short paragraph. State what the players
+are trying to achieve and what makes the activity interesting.}
+
+\subsection{Players, materials, and initial setup}
+\begin{itemize}
+  \item \textbf{Number of players:} \placeholder{Individual, two-player, team,
+  or other format.}
+  \item \textbf{Materials or platform:} \placeholder{List the board, cards,
+  counters, software, or other items needed. For a digital game, explain how
+  to access and start it.}
+  \item \textbf{Initial setup:} \placeholder{Describe the starting arrangement
+  and how the first player or first move is chosen, if applicable.}
+\end{itemize}
+
+\subsection{Rules and how to play}
+\guidance{Write the rules in the order a new player needs them. State the legal
+moves, restrictions, turn order, and ending condition. Define winning, losing,
+scoring, ties, or puzzle completion wherever relevant.}
+\begin{enumerate}
+  \item \placeholder{First rule or step.}
+  \item \placeholder{Second rule or step.}
+  \item \placeholder{Further rules and restrictions; add items as needed.}
+  \item \placeholder{When the game ends and how the outcome is decided.}
+\end{enumerate}
+
+\subsection{Illustrative play-through}
+\placeholder{Show one short example from a valid starting state through the
+main moves to an outcome. Use a labelled diagram, photograph, or table if it
+helps. Explain why each move is allowed.}
+
+% Example figure syntax, if needed:
+% \begin{figure}[htbp]
+%   \centering
+%   \includegraphics[width=0.7\linewidth]{game_setup.png}
+%   \caption{Initial setup of the game.}
+%   \label{fig:setup}
+% \end{figure}
+
+\section{The Mathematical Question}
+\placeholder{State the precise mathematical question that arises from the
+game. What do you want to determine, count, characterise, or prove?}
+
+\textbf{Connection to discrete mathematics.}
+\placeholder{Name the relevant concept(s) and explain how the game represents
+them. Define the symbols, objects, and assumptions used in your analysis.}
+
+\newpage
+\section{Experimentation and What We Discovered}
+
+\subsection{Method and observations}
+\placeholder{Explain how you explored the game: which starting positions,
+sizes, strategies, or rule variations you tested, and how you recorded the
+outcomes. If you used code, describe what it checked.}
+
+\guidance{Record actual trials. Distinguish one play-through from an exhaustive
+check of all possibilities. Add or modify rows and columns to suit your game.}
+
+\begin{tabularx}{\textwidth}{@{}P{1cm}Y Y Y@{}}
+\toprule
+\textbf{Trial} & \textbf{Starting case} & \textbf{Moves or strategy tested}
+  & \textbf{Outcome / observation} \\
+\midrule
+1 & \placeholder{Case} & \placeholder{What you tried} & \placeholder{Result} \\
+2 & \placeholder{Case} & \placeholder{What you tried} & \placeholder{Result} \\
+3 & \placeholder{Case} & \placeholder{What you tried} & \placeholder{Result} \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Patterns and discoveries}
+\placeholder{Describe the patterns you noticed and the evidence for them.
+Mention any surprising outcomes, exceptions, or unsuccessful strategies.
+Explain how these observations led to your conjecture.}
+
+\section{Our Strategy, Conjecture, or Mathematical Claim}
+
+\subsection{Precise statement}
+\guidance{State the range of cases and all conditions under which your claim is
+meant to hold. For a winning strategy, specify which player can use it, from
+which positions, and whether it must work against every legal opponent move.
+Repeated wins alone do not establish a guaranteed winning strategy.}
+
+\textbf{Claim.} \placeholder{Write your conjecture or mathematical claim as a
+complete, precise statement.}
+
+\subsection{Strategy and intuition}
+\placeholder{Describe the proposed strategy step by step, if applicable.
+Explain the intuition behind it and how it follows from your observations.
+If the claim is about counting, structure, or impossibility, explain the main
+idea instead.}
+
+\newpage
+\section{Proof or Counterexample}
+\guidance{Complete the appropriate route below and remove the unused route.
+Experiments may suggest a claim; a proof must establish it for every case
+covered by the statement. A valid counterexample must satisfy the assumptions
+and contradict the claimed conclusion. Support your main claim with a proof
+or disprove it with a counterexample.}
+
+\subsection*{Route A: Proof of the claim}
+\textbf{Proof.}
+\placeholder{Give a clear, complete argument. State any facts or lemmas used
+and justify the important steps. Use a suitable method, such as induction,
+contradiction, a direct argument, an invariant, a counting argument, or a graph
+argument. Choose the method that actually fits your claim.}
+
+\placeholder{For induction, show the base case(s), state the induction
+hypothesis, and prove the induction step. For a winning strategy, explain why
+each prescribed move is legal, why every possible opponent response is
+covered, and why the desired outcome is eventually reached. Remove this
+prompt if it does not apply.}
+
+\textbf{Conclusion of the proof.}
+\placeholder{State exactly what has been established and for which cases.}
+
+\subsection*{Route B: Counterexample to the conjecture}
+\textbf{Original conjecture.}
+\placeholder{Restate the conjecture being tested.}
+
+\textbf{Counterexample.}
+\placeholder{Give the specific starting state, construction, or sequence of
+legal moves. Explain why it satisfies the assumptions and why the conclusion
+fails. A loss caused by ignoring the proposed strategy is not a counterexample
+to that strategy.}
+
+\textbf{What the counterexample teaches us.}
+\placeholder{Explain which part of the conjecture fails. If you propose a
+revised claim, state it precisely and distinguish a proved result from a
+conjecture that remains unproved.}
+
+\subsection*{Final mathematical finding}
+\placeholder{Summarise what you can now conclude about the game and whether
+your main claim was proved or disproved. State the cases covered by your
+result. Identify any further unanswered questions separately.}
+
+\newpage
+\section{Interaction with School Students and Feedback}
+\guidance{The participants may be up to 15 years old. If the activity has not
+yet taken place, label this section \textbf{Planned interaction}; describe the
+plan and leave actual observations for later. Do not present planned outcomes
+as observed results.}
+
+\textbf{Introduction and guided play.}
+\placeholder{Explain how you will introduce the rules simply, demonstrate a
+round, and help students play. Give two or three guiding questions or hints
+that encourage them to discover the mathematical idea.}
+
+\textbf{Mathematics after playing.}
+\placeholder{Write a brief, age-appropriate explanation of the idea you will
+discuss after the students have explored the game.}
+
+\textbf{Feedback and refinements, if available.}
+\placeholder{Record what students or classmates found clear, confusing, or
+interesting. Explain any changes made to the rules, materials, explanation,
+or strategy. If no testing or interaction has occurred, state that clearly.}
+
+\section{Contribution of Each Group Member}
+\guidance{Use the same member order as on the first page. Describe each
+person's specific contribution; shared tasks may appear in more than one row.
+Examples include game design, construction, testing, mathematical analysis,
+proof, illustrations, writing, and facilitating the activity.}
+
+% longtable lets this table continue onto another page as entries grow.
+\begin{longtable}{@{}P{1cm}P{4.3cm}P{\dimexpr\textwidth-5.3cm-4\tabcolsep\relax}@{}}
+\toprule
+\textbf{No.} & \textbf{Name / roll number} & \textbf{Specific contribution(s)} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{No.} & \textbf{Name / roll number} & \textbf{Specific contribution(s)} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{\small Continued on the next page}\\
+\endfoot
+\bottomrule
+\endlastfoot
+1 & \placeholder{Member 1} & \placeholder{Contribution} \\
+2 & \placeholder{Member 2} & \placeholder{Contribution} \\
+3 & \placeholder{Member 3} & \placeholder{Contribution} \\
+4 & \placeholder{Member 4} & \placeholder{Contribution} \\
+5 & \placeholder{Member 5} & \placeholder{Contribution} \\
+6 & \placeholder{Member 6} & \placeholder{Contribution} \\
+7 & \placeholder{Member 7} & \placeholder{Contribution} \\
+8 & \placeholder{Member 8} & \placeholder{Contribution} \\
+9 & \placeholder{Member 9} & \placeholder{Contribution} \\
+10 & \placeholder{Member 10} & \placeholder{Contribution} \\
+\end{longtable}
+
+\section{References and Acknowledgements}
+\placeholder{List any books, websites, games, software, or other resources you
+used. If you adapted an existing game or proof, credit the source and explain
+your adaptation. If no external sources were used, state this.}
+
+% Optional: add an appendix for extra trial data, code, or construction
+% details. Keep the rules, mathematical question, claim, and complete
+% proof/counterexample in the main report.
+
+\end{document}

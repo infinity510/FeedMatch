@@ -1,0 +1,487 @@
+% Discrete Mathematics (MAL2190), IIT Jodhpur
+% Common project report template: Build a Game, Discover the Mathematics
+% Project Report: FeedMatch - Street Food Frenzy
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=1in,headheight=15pt]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{array,tabularx,longtable,booktabs}
+\usepackage{enumitem}
+\usepackage{fancyhdr,lastpage}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+
+% Mathematical environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+% ---------- METADATA DETAILS ----------
+\newcommand{\GameTitle}{FeedMatch: Street Food Frenzy}
+\newcommand{\GroupNumber}{12}
+\newcommand{\SubmissionDate}{11 October 2026}
+\newcommand{\MathConcepts}{Bipartite Matching, Berge's Augmenting Path Theorem, Hall's Marriage Theorem}
+% ----------------------------------------
+
+\newif\ifshowguidance
+\showguidancefalse % Set to false for the final report submission
+
+\definecolor{guidetext}{gray}{0.32}
+\definecolor{guidebg}{gray}{0.95}
+\newcommand{\placeholder}[1]{\textit{[#1]}}
+\newcommand{\guidance}[1]{%
+  \ifshowguidance
+    \par\smallskip\noindent
+    \begingroup\setlength{\fboxsep}{8pt}%
+    \colorbox{guidebg}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{%
+      \small\color{guidetext}#1}}\endgroup\par\smallskip
+  \fi}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlength{\emergencystretch}{2em}
+\renewcommand{\arraystretch}{1.3}
+\setlist{leftmargin=*,itemsep=3pt,topsep=4pt,parsep=0pt}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{13pt}{5pt}
+\titlespacing*{\subsection}{0pt}{9pt}{3pt}
+\raggedbottom
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Discrete Mathematics (MAL2190)}
+\fancyhead[R]{\small Project Report}
+\fancyfoot[L]{\footnotesize IIT Jodhpur}
+\fancyfoot[R]{\footnotesize Page \thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\hypersetup{
+  pdftitle={MAL2190 Project Report - FeedMatch: Street Food Frenzy},
+  pdfsubject={Build a Game, Discover the Mathematics}
+}
+
+\begin{document}
+\pagecolor{white}
+\color{black}
+\thispagestyle{plain}
+
+\begin{center}
+  \IfFileExists{IITJ_COLOURED.png}{%
+    \includegraphics[width=1.6cm]{IITJ_COLOURED.png}\par\vspace{6pt}}{}
+  {\large\bfseries Indian Institute of Technology Jodhpur\par}
+  \vspace{4pt}
+  {\large\bfseries Discrete Mathematics (MAL2190)\par}
+  \vspace{10pt}
+  \rule{\textwidth}{0.6pt}\par
+  \vspace{6pt}
+  {\LARGE\bfseries Project Report\par}
+  \vspace{5pt}
+  {\large Build a Game, Discover the Mathematics\par}
+  \vspace{6pt}
+  \rule{\textwidth}{0.6pt}\par
+  \vspace{13pt}
+  {\Large\bfseries \GameTitle\par}
+\end{center}
+
+\vspace{5pt}
+\begin{tabularx}{\textwidth}{@{}P{3.8cm}Y@{}}
+\textbf{Group number} & \GroupNumber \\
+\textbf{Submission date} & \SubmissionDate \\
+\textbf{Concept(s)} & \MathConcepts \\
+\end{tabularx}
+
+\vspace{9pt}
+\textbf{Group members (10 students)}
+
+\begin{tabularx}{\textwidth}{@{}P{1cm}Y P{4cm}@{}}
+\toprule
+\textbf{No.} & \textbf{Name} & \textbf{Roll number} \\
+\midrule
+1 & Akshat & B25CM1004 \\
+2 & Shouryaveer & B25CS1078 \\
+3 & Praneeth & B25ES1002 \\
+4 & Anshul & B25CS1006 \\
+5 & Hardik & B25CS1079 \\
+6 & Aayush & B25CM1045 \\
+7 & Hamza & B25CS1016 \\
+8 & Rohit & B25CM1042 \\
+9 & Piyush & B25CM1036 \\
+10 & Purushottam & B25CM1023 \\
+\bottomrule
+\end{tabularx}
+
+\vspace{10pt}
+
+\newpage
+\section{The Game or Puzzle}
+
+\subsection{Overview and objective}
+\textbf{FeedMatch: Street Food Frenzy} is an interactive mathematical puzzle game inspired by a familiar campus dilemma: five hungry college friends visit a bustling street food kitchen, each possessing strict individual cravings, while the stall has prepared single portions of various street delicacies. The central challenge is to assign exactly one unique street food plate to each friend such that everyone's preference is simultaneously fulfilled, or to decisively identify when satisfying the entire group is mathematically impossible. 
+
+The game engages players by transforming abstract graph matching into an intuitive, high-stakes drag-and-drop culinary puzzle. Players quickly discover that naively satisfying one person's cravings can starve a peer who had no other food options. Through sequential rounds, players encounter greedy decision traps, dynamic edge reallocations (augmenting paths via an in-game ``Rescue'' mechanism), and structural bottlenecks that illustrate the boundary between solvability and impossibility.
+
+\subsection{Players, materials, and initial setup}
+\begin{itemize}
+  \item \textbf{Number of players:} Single-player or cooperative team acting as the kitchen coordinator.
+  \item \textbf{Materials or platform:} A modern, self-contained web application developed in HTML5, Tailwind CSS, JavaScript (ES6+), and the Web Audio API. The game runs locally in any modern desktop or mobile browser without requiring external installations or remote server backends.
+  \item \textbf{Initial setup:} The game opens with a roster configuration screen where names of the five squad members are initialized (defaulting to Akshat, Praneeth, Anshul, Hardik, and Rohit). Upon entering the arena, the player sees:
+  \begin{enumerate}
+    \item \textbf{The Hungry Squad (Left Column):} Five distinct drop zones, each labeled with a friend's name and avatar.
+    \item \textbf{The Street Kitchen (Right Column):} A collection of draggable food badges (e.g., Pizza, Burger, Momo, Samosa, Vada Pav, Chaat, Pav Bhaji, Maggi).
+    \item \textbf{Heads-Up Display:} An active round descriptor listing individual preferences, an elapsed timer, a score counter, and three ``Rescue'' lifelines.
+  \end{enumerate}
+\end{itemize}
+
+\subsection{Rules and how to play}
+\begin{enumerate}
+  \item \textbf{Single Plate Invariance:} Every friend must receive at most one food plate, and each distinct food plate can be allocated to at most one friend.
+  \item \textbf{Strict Preference Compatibility:} A food item can only be dropped into a friend's zone if it appears on that friend's explicit preference list for the active round. Attempting an incompatible assignment triggers an immediate rejection with auditory and visual warnings.
+  \item \textbf{Reallocation and Reset:} Players may drag items between different compatible friends or return items to the kitchen pool at any time. The \textit{Reset} button instantly returns all items to the kitchen.
+  \item \textbf{The Rescue Lifeline:} When a player is deadlocked with an unserved friend whose preferred items are already taken, clicking \textit{Rescue} expends one lifeline. The underlying engine executes an augmenting path search (via Depth-First Search), shifting prior allocations along an alternating chain of compatible items to accommodate the unserved friend.
+  \item \textbf{Submission and Impossibility Declaration:}
+  \begin{itemize}
+    \item If all five friends are simultaneously assigned valid plates, the player clicks \textbf{Submit Match} ($\checkmark$) to advance.
+    \item If the player deduces that the preference constraints cannot admit a complete assignment for all five friends, they must click \textbf{Impossible!} ($\bigotimes$).
+  \end{itemize}
+  \item \textbf{Scoring and Game Conclusion:} The game spans multiple progressive rounds. The final score is computed as $\text{Score} = \max(0, 10000 - 20 \times t - 1000 \times L)$, where $t$ is the total elapsed time in seconds and $L$ is the number of lifelines expended.
+\end{enumerate}
+
+\subsection{Illustrative play-through}
+Consider \textbf{Round 2: Think Twice}, featuring 5 friends (Akshat, Shouryaveer, Praneeth, Anshul, Hardik) and 5 street food items (Pizza, Burger, Momo, Samosa, Vada Pav). The preferences are:
+\begin{itemize}
+  \item Akshat: \{Pizza, Momo\}
+  \item Shouryaveer: \{Momo, Burger\}
+  \item Praneeth: \{Burger, Samosa\}
+  \item Anshul: \{Samosa, Vada Pav\}
+  \item Hardik: \{Vada Pav\}
+\end{itemize}
+
+\textbf{Step 1 (The Greedy Pitfall):} A novice player assigns items greedily in alphabetical or display order:
+\begin{itemize}
+  \item Assign Akshat $\to$ Pizza, Shouryaveer $\to$ Momo, Praneeth $\to$ Burger, and Anshul $\to$ Vada Pav.
+  \item Four friends are happily fed, but only Samosa remains in the kitchen pool.
+  \item Hardik arrives: Hardik's \emph{only} acceptable food is Vada Pav. However, Vada Pav is held by Anshul. Hardik cannot take Samosa, and the game enters a deadlock.
+\end{itemize}
+
+\textbf{Step 2 (The Alternating Reallocation Chain):} To accommodate Hardik without starving anyone, the player traces an alternating path of compatible substitutes:
+\begin{enumerate}
+  \item Hardik desperately requires Vada Pav (currently held by Anshul).
+  \item Anshul inspects his alternatives: he likes Samosa, which is currently unallocated in the kitchen pool!
+  \item Anshul yields Vada Pav to Hardik and claims Samosa.
+\end{enumerate}
+
+\textbf{Final Valid Assignment:} Akshat $\to$ Pizza, Shouryaveer $\to$ Momo, Praneeth $\to$ Burger, Anshul $\to$ Samosa, Hardik $\to$ Vada Pav. All five friends receive their desired items, and the match is successfully submitted.
+
+\begin{figure}[htbp]
+  \centering
+  \small
+  \begin{tabular}{|l|l|l|c|}
+    \hline
+    \textbf{Friend} & \textbf{Initial Greedy Choice} & \textbf{Reassigned Matching} & \textbf{Status} \\ \hline
+    Akshat & Pizza & Pizza & Satisfied \\
+    Shouryaveer & Momo & Momo & Satisfied \\
+    Praneeth & Burger & Burger & Satisfied \\
+    Anshul & Vada Pav & Samosa & Satisfied (Shifted) \\
+    Hardik & \textit{Unmatched (Starved)} & Vada Pav & Satisfied (Rescued) \\ \hline
+  \end{tabular}
+  \caption{Comparison of the naive greedy deadlock versus the reallocated perfect matching in Round 2.}
+  \label{tab:round2_matching}
+\end{figure}
+
+\section{The Mathematical Question}
+The core mathematical challenge presented by FeedMatch can be formalized through three fundamental questions in discrete mathematics and combinatorial optimization:
+
+\begin{enumerate}
+  \item \textbf{Existence of a Complete Matching:} Given a finite bipartite graph $G = (X, Y, E)$, where $X$ is a set of $n$ students, $Y$ is a set of $m$ food items ($m \ge n$), and edges $E \subseteq X \times Y$ represent valid preferences, under what exact structural conditions does there exist a matching $M \subseteq E$ that saturates $X$ (i.e., $|M| = |X|$)?
+  \item \textbf{Constructive Recovery via Alternating Paths:} When a human player constructs a partial matching $M$ ($|M| < |X|$) that cannot be greedily extended, does there exist an algorithmic mechanism that can systematically augment the matching cardinality by rerouting existing assignments?
+  \item \textbf{Certification of Impossibility:} When no complete matching exists, what minimal combinatorial certificate proves that no valid assignment can ever be found, regardless of the order of allocations?
+\end{enumerate}
+
+\textbf{Connection to discrete mathematics.}
+The game directly models the \textbf{Bipartite Matching Problem}. Formally, let $G = (X \cup Y, E)$ be an undirected bipartite graph with vertex bipartition $(X, Y)$, where $X = \{p_1, p_2, \dots, p_n\}$ denotes the set of students and $Y = \{f_1, f_2, \dots, f_m\}$ denotes the available food plates. An edge $(p_i, f_j) \in E$ exists if and only if student $p_i$ is willing to eat food $f_j$.
+
+\begin{itemize}
+  \item A \textbf{matching} $M \subseteq E$ is a subset of edges such that no two edges share a common vertex. A vertex $v \in X \cup Y$ is \textbf{$M$-saturated} if it is incident to an edge in $M$; otherwise, it is \textbf{$M$-unsaturated} (free).
+  \item An \textbf{$M$-alternating path} is a simple path in $G$ whose edges alternate between $E \setminus M$ and $M$.
+  \item An \textbf{$M$-augmenting path} is an $M$-alternating path whose initial and terminal vertices are both $M$-unsaturated.
+  \item For any subset $S \subseteq X$, its \textbf{neighborhood} $N(S) \subseteq Y$ is defined as the set of all food items adjacent to at least one student in $S$:
+  \[
+    N(S) = \{y \in Y \mid \exists x \in S \text{ such that } (x, y) \in E\}.
+  \]
+  \item \textbf{Hall's Marriage Condition} states that a bipartite graph contains an $X$-saturating matching if and only if every subset $S \subseteq X$ satisfies $|N(S)| \ge |S|$.
+\end{itemize}
+
+\newpage
+\section{Experimentation and What We Discovered}
+
+\subsection{Method and observations}
+To investigate matching behaviors, our group systematically analyzed all four round structures provided in FeedMatch across dozens of controlled play-throughs, testing both human intuitive strategies and computerized algorithmic searches:
+
+\begin{enumerate}
+  \item \textbf{Round 1 (Disjoint Independent Choice):} Five students, five items, disjoint singleton preferences.
+  \item \textbf{Round 2 (Cascading Chain):} Linear dependency chain terminating at a degree-1 leaf vertex.
+  \item \textbf{Round 3A (Rescue Operation):} A cyclic dependency requiring multi-hop augmenting path reversals.
+  \item \textbf{Round 3B (Final Challenge):} Five students, four items, partitioned preference cliques.
+\end{enumerate}
+
+\begin{tabularx}{\textwidth}{@{}P{1.2cm}P{2.6cm}Y Y@{}}
+\toprule
+\textbf{Trial} & \textbf{Starting case} & \textbf{Moves or strategy tested} & \textbf{Outcome / observation} \\
+\midrule
+1 & Round 1 & Arbitrary assignment of items to friends. & All assignments succeeded immediately. Each vertex has degree 1; unique matching of size 5 exists. \\
+\midrule
+2 & Round 2 & Greedy allocation starting with Akshat $\to$ Pizza, Shouryaveer $\to$ Momo, Praneeth $\to$ Burger, Anshul $\to$ Vada Pav. & Deadlock at Hardik. Hardik has degree 1 ($N(\text{Hardik}) = \{\text{Vada Pav}\}$); his sole option was preemptively consumed by Anshul. \\
+\midrule
+3 & Round 2 & Degree-constrained allocation: assign lowest-degree vertices first (Hardik $\to$ Vada Pav first). & Instant success. Forcing Hardik $\to$ Vada Pav cascades into forced choices for Anshul, Praneeth, Shouryaveer, and Akshat. \\
+\midrule
+4 & Round 3A & Greedy allocation leaving Hardik unserved. Activated the in-game ``Rescue'' button. & Rescue automatically discovered the augmenting path: $\text{Hardik} - \text{Burger} - \text{Anshul} - \text{Pizza} - \text{Praneeth} - \text{Maggi} - \text{Shouryaveer} - \text{Pav Bhaji} - \text{Akshat} - \text{Chaat}$. Matching increased from 4 to 5. \\
+\midrule
+5 & Round 3B & Exhaustive permutation search to match all 5 students. & All 120 potential allocation permutations failed. At most 4 students could be fed simultaneously. \\
+\midrule
+6 & Round 3B & Subgroup analysis of preferences on $\{P_1, P_2, P_3\}$. & Discovered that $N(\{P_1, P_2, P_3\}) = \{\text{Chaat}, \text{Maggi}\}$. 3 students share only 2 dishes. Verified $|N(S)| < |S|$. Correctly clicked ``Impossible!''. \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Patterns and discoveries}
+Through systematic experimental trials, our group uncovered three pivotal patterns:
+
+\begin{enumerate}
+  \item \textbf{The Greedy Trap and Degree Heuristics:} Purely greedy matching (assigning any available edge to the first student encountered) frequently leads to maximal matchings that are strictly smaller than the maximum matching. However, prioritizing vertices with minimal degree ($\deg(v) = 1$) eliminates early deadlocks by respecting critical constraints before flexible ones.
+  \item \textbf{The Invariance of Augmenting Path Inversion:} Whenever a partial matching reached a dead end with an unsatisfied student $u$, we observed that as long as an alternating chain reached an unoccupied food plate $v$, inverting the matched and unmatched edges along that chain strictly increased the total number of satisfied students by exactly 1 without ever unseating an already-satisfied student.
+  \item \textbf{The Bottleneck Certificate (Hall Deficit):} In Round 3B, players repeatedly felt frustrated by their inability to find a solution. Analyzing the adjacency revealed that students $\{P_1, P_2, P_3\}$ formed an isolated subset whose joint neighborhood had size 2. By the Pigeonhole Principle, assigning 3 students to 2 items is impossible. This demonstrated that testing subset neighborhoods serves as an undeniable mathematical proof of impossibility.
+\end{enumerate}
+
+\section{Our Strategy, Conjecture, or Mathematical Claim}
+
+\subsection{Precise statement}
+Based on our experimental observations, we formulate two precise mathematical claims that characterize solvability and algorithmic recovery in FeedMatch:
+
+\textbf{Claim 1 (Hall's Solvability Criterion in FeedMatch).} Let $G = (X, Y, E)$ be the bipartite graph representing the student-food preferences for any round, with $|X| = n$ students and $|Y| = m$ food plates ($m \ge n$). Then a complete matching saturating $X$ exists if and only if for every subset $S \subseteq X$,
+\[
+  |N(S)| \ge |S|.
+\]
+Furthermore, a round is mathematically insoluble if and only if there exists a witness subset $S^* \subseteq X$ such that $|N(S^*)| < |S^*|$.
+
+\textbf{Claim 2 (Augmenting Path Correction / Rescue Invariant).} Let $M$ be a matching in $G$ of cardinality $k < |X|$, and let $u \in X$ be an $M$-unsaturated student. An allocation can be reconfigured to satisfy $u$ while keeping all previously satisfied students fed if and only if there exists an $M$-augmenting path $P$ starting at $u$ and terminating at an $M$-unsaturated food $v \in Y$. Inverting the edges via symmetric difference $M' = M \oplus P$ yields a valid matching of cardinality $k+1$.
+
+\subsection{Strategy and intuition}
+The optimal strategy for playing and solving FeedMatch relies on a two-phase hybrid approach:
+
+\begin{enumerate}
+  \item \textbf{Phase 1: Constrained Greedy Assignment.} Begin by identifying and satisfying students with the fewest options ($\deg(x) = 1$). For instance, if a student only eats Vada Pav, immediately assign Vada Pav to them. This prevents flexible peers from accidentally stealing an irreplaceable resource.
+  \item \textbf{Phase 2: Augmenting Path Search (The Rescue Engine).} If an unsaturated student $u$ cannot directly claim any food in $N(u)$, initiate a Depth-First Search (DFS) for an alternating path:
+  \begin{itemize}
+    \item For each food $y \in N(u)$, if $y$ is unassigned, assign $(u, y)$ and terminate.
+    \item If $y$ is currently held by student $w$, temporarily assign $(u, y)$ and recursively seek an alternative food for $w$ among $N(w) \setminus \{y\}$.
+    \item If this recursion reaches an unassigned food, commit the reassignment cascade.
+  \end{itemize}
+  \item \textbf{Phase 3: Bottleneck Detection.} If the alternating DFS from an unassigned student terminates without finding any free food, the set of all students visited during the search constitutes a Hall violator $S \subseteq X$ with $|N(S)| < |S|$, guaranteeing that the puzzle is impossible.
+\end{enumerate}
+
+\newpage
+\section{Proof or Counterexample}
+
+\subsection*{Route A: Proof of the claim}
+
+We provide a complete, rigorous proof of our mathematical claims by establishing \textbf{Berge's Augmenting Path Theorem} (Lemma 1) and utilizing it to prove \textbf{Hall's Marriage Theorem} (Theorem 1), followed by an exact impossibility proof for Round 3B.
+
+\begin{lemma}[Berge's Lemma, 1957]
+A matching $M$ in a graph $G = (V, E)$ is a maximum matching if and only if $G$ contains no $M$-augmenting path.
+\end{lemma}
+
+\begin{proof}
+$(\implies)$ Suppose $G$ contains an $M$-augmenting path $P$. By definition, $P$ is an alternating path whose endpoints $u$ and $v$ are $M$-unsaturated. Since the endpoints are not incident to $M$, the edges of $P$ strictly alternate between $E \setminus M$ and $M$, beginning and ending with edges in $E \setminus M$. 
+
+Thus, if $P$ has length $2k + 1$, exactly $k$ edges of $P$ belong to $M$ and $k + 1$ edges belong to $E \setminus M$. Consider the symmetric difference of $M$ and $P$:
+\[
+  M' = M \oplus P = (M \setminus P) \cup (P \setminus M).
+\]
+In $M'$, each internal vertex of $P$ remains incident to exactly one edge, while the endpoints $u$ and $v$ transition from being unsaturated to being saturated by the first and last edges of $P$. No vertex outside $P$ changes its degree in $M'$. Therefore, $M'$ is a valid matching in $G$, and its cardinality is:
+\[
+  |M'| = |M| - k + (k + 1) = |M| + 1.
+\]
+Since $|M'| > |M|$, the matching $M$ was not maximum. By contrapositive, if $M$ is maximum, $G$ contains no $M$-augmenting path.
+
+$(\impliedby)$ Conversely, suppose $G$ contains no $M$-augmenting path. Let $M^*$ be any maximum matching in $G$. We aim to show that $|M| = |M^*|$.
+
+Consider the subgraph $H = (V, M \oplus M^*)$. Because every vertex in $G$ is incident to at most one edge in $M$ and at most one edge in $M^*$, every vertex in $H$ has degree at most 2. By the structural classification of graphs with maximum degree at most 2, every connected component of $H$ must be one of the following:
+\begin{enumerate}
+  \item An isolated vertex.
+  \item A cycle of even length whose edges alternate strictly between $M$ and $M^*$.
+  \item A path whose edges alternate strictly between $M$ and $M^*$.
+\end{enumerate}
+
+In any alternating cycle $C$, the number of edges from $M$ equals the number of edges from $M^*$, so $|C \cap M| = |C \cap M^*|$. 
+
+For any alternating path component $Q$:
+\begin{itemize}
+  \item If $Q$ has even length, it contains an equal number of edges from $M$ and $M^*$.
+  \item If $Q$ has odd length and has more edges from $M$ than $M^*$, then $Q$ starts and ends with edges in $M$.
+  \item If $Q$ has odd length and has more edges from $M^*$ than $M$, then $Q$ starts and ends with edges in $M^*$. This implies that the endpoints of $Q$ are not incident to any edge in $M$, meaning $Q$ is an $M$-augmenting path in $G$.
+\end{itemize}
+
+However, by assumption, $G$ contains no $M$-augmenting path! Therefore, no component of $H$ can have more edges in $M^*$ than in $M$. Summing over all components of $H$, we obtain:
+\[
+  |M^* \setminus M| \le |M \setminus M^*| \implies |M^*| \le |M|.
+\]
+Since $M^*$ is maximum, $|M| \le |M^*|$. Hence $|M| = |M^*|$, which proves that $M$ is indeed a maximum matching.
+\end{proof}
+
+\begin{theorem}[Hall's Marriage Theorem, 1935]
+Let $G = (X, Y, E)$ be a finite bipartite graph. There exists a matching in $G$ that saturates $X$ if and only if for every subset $S \subseteq X$,
+\[
+  |N(S)| \ge |S|.
+\]
+\end{theorem}
+
+\begin{proof}
+$(\implies)$ \textbf{Necessity:} Suppose $G$ contains a matching $M$ that saturates $X$. Then for every student $x \in X$, there is a distinct edge $(x, y_x) \in M$ with $y_x \in Y$. For any arbitrary subset $S \subseteq X$, the set of their matched partners $M(S) = \{y_x \mid x \in S\}$ is a subset of $N(S)$. Since all matched partners are distinct, $|M(S)| = |S|$. Because $M(S) \subseteq N(S)$, we immediately have:
+\[
+  |N(S)| \ge |M(S)| = |S|.
+\]
+
+$(\impliedby)$ \textbf{Sufficiency:} We prove the contrapositive using Berge's Lemma. Suppose that $G$ does \emph{not} contain a matching that saturates $X$. We will construct a subset $S^* \subseteq X$ that violates Hall's condition, i.e., $|N(S^*)| < |S^*|$.
+
+Let $M$ be a maximum matching in $G$. Since $M$ does not saturate $X$, there exists at least one $M$-unsaturated vertex $u_0 \in X$. 
+
+By Berge's Lemma, there is no $M$-augmenting path in $G$ originating at $u_0$. Let us explore all alternating paths starting at $u_0$:
+\begin{align*}
+  S^* &= \{x \in X \mid x \text{ is reachable from } u_0 \text{ via an } M\text{-alternating path}\}, \\
+  T^* &= \{y \in Y \mid y \text{ is reachable from } u_0 \text{ via an } M\text{-alternating path}\}.
+\end{align*}
+
+Note that $u_0 \in S^*$ (via the trivial path of length 0). We observe two crucial structural properties:
+\begin{enumerate}
+  \item \textbf{Every vertex in $T^*$ is $M$-saturated:} If there existed an unsaturated vertex $y \in T^*$, then the alternating path connecting $u_0$ to $y$ would begin and end at unsaturated vertices, constituting an $M$-augmenting path. This contradicts Berge's Lemma.
+  \item \textbf{Matching Duality between $T^*$ and $S^* \setminus \{u_0\}$:} For any $y \in T^*$, the alternating path reaches $y$ via an edge in $E \setminus M$. Because $y$ is saturated, the only way an alternating path can continue from $y$ is along its unique matching edge $(y, x) \in M$. Thus, $x \in S^*$. 
+  
+  Conversely, every vertex $x \in S^* \setminus \{u_0\}$ is reached along an edge in $M$, meaning it is matched to some $y \in T^*$. Therefore, the matching $M$ defines a perfect bijection between $T^*$ and $S^* \setminus \{u_0\}$. This yields:
+  \[
+    |T^*| = |S^* \setminus \{u_0\}| = |S^*| - 1.
+  \]
+  \item \textbf{Neighborhood Containment $N(S^*) \subseteq T^*$:} Let $y \in N(S^*)$. By definition, there exists $x \in S^*$ such that $(x, y) \in E$. Since $x \in S^*$, there is an alternating path $P$ from $u_0$ to $x$. 
+  \begin{itemize}
+    \item If $(x, y) \in M$, then $x \ne u_0$, and $y$ was the preceding vertex on $P$, so $y \in T^*$.
+    \item If $(x, y) \notin M$, we can extend the alternating path $P$ by appending edge $(x, y)$, which reaches $y$ via an edge in $E \setminus M$. Thus, $y \in T^*$.
+  \end{itemize}
+  In either case, $y \in T^*$, which proves that $N(S^*) \subseteq T^*$.
+\end{enumerate}
+
+Combining these results, we find:
+\[
+  |N(S^*)| \le |T^*| = |S^*| - 1 < |S^*|.
+\]
+Thus, the subset $S^* \subseteq X$ violates Hall's condition. By contrapositive, if Hall's condition holds for all subsets $S \subseteq X$, then a matching saturating $X$ must exist.
+\end{proof}
+
+\subsection*{Impossibility Proof for FeedMatch Round 3B}
+In \textbf{Round 3B: Final Challenge}, the game setup consists of:
+\begin{itemize}
+  \item Students: $X = \{P_1, P_2, P_3, P_4, P_5\}$ with $|X| = 5$.
+  \item Food Plates: $Y = \{\text{Chaat}, \text{Maggi}, \text{Pizza}, \text{Burger}\}$ with $|Y| = 4$.
+  \item Preference Adjacency:
+  \begin{itemize}
+    \item $N(P_1) = N(P_2) = N(P_3) = \{\text{Chaat}, \text{Maggi}\}$.
+    \item $N(P_4) = N(P_5) = \{\text{Pizza}, \text{Burger}\}$.
+  \end{itemize}
+\end{itemize}
+
+\textbf{Proof of Impossibility:} 
+Consider the subset of students $S^* = \{P_1, P_2, P_3\} \subset X$. 
+The neighborhood of $S^*$ is:
+\[
+  N(S^*) = N(P_1) \cup N(P_2) \cup N(P_3) = \{\text{Chaat}, \text{Maggi}\}.
+\]
+Evaluating the cardinalities:
+\[
+  |S^*| = 3, \quad \text{while} \quad |N(S^*)| = 2.
+\]
+Because $|N(S^*)| = 2 < 3 = |S^*|$, Hall's condition fails for the witness subset $S^*$. By Theorem 1 (Hall's Marriage Theorem), no matching can saturate $X$. Furthermore, since each plate can be assigned to at most one student, by the Pigeonhole Principle, assigning 3 students to 2 food items requires at least one item to be shared, violating Rule 1. 
+
+Hence, no valid complete assignment exists, proving that declaring \textbf{Impossible!} is the unique mathematically sound resolution.
+
+\subsection*{Final mathematical finding}
+We have established that bipartite matching in FeedMatch is completely governed by Hall's Marriage Theorem. In Rounds 1, 2, and 3A, Hall's condition holds for all $2^5 = 32$ subsets of students, guaranteeing that a perfect matching exists. When a human player makes greedy mistakes, Berge's Lemma guarantees that the in-game ``Rescue'' operation can iteratively restore progress via augmenting paths. Conversely, in Round 3B, identifying the Hall-violating subset $S^* = \{P_1, P_2, P_3\}$ provides a definitive certificate of insolubility.
+
+\newpage
+\section{Interaction with School Students and Feedback}
+
+\subsection*{Introduction and guided play}
+To bridge theoretical discrete mathematics with secondary education, our group designed and conducted an interactive workshop for 15 middle and high school students (aged 12--15). The premise was introduced through a live roleplay activity called the \emph{``Canteen Conundrum''}: five students wore name tags representing friends, while physical cards representing dishes were laid out on a table.
+
+We guided student exploration through three targeted prompt questions:
+\begin{enumerate}
+  \item \textbf{Heuristic Prompt:} \textit{``If Hardik only likes one single snack, but Anshul likes two, who should pick their food first? What happens if Anshul takes Hardik's only option?''}
+  \item \textbf{Augmenting Path Prompt:} \textit{``If everyone is holding a snack except for Akshat, how can we help Akshat without leaving anyone hungry? Can we arrange a friendly trade?''}
+  \item \textbf{Bottleneck Prompt (Round 3B):} \textit{``Count the number of friends who only eat Chaat and Maggi. How many plates of Chaat and Maggi are on the table? Can you solve this dilemma?''}
+\end{enumerate}
+
+\subsection*{Mathematics after playing}
+Following hands-on play on the web application, we introduced the formal mathematics using visual graph diagrams on a whiteboard:
+\begin{itemize}
+  \item \textbf{The Two Columns (Bipartite Graphs):} We showed that drawing friends on the left and foods on the right creates a bipartite graph, where lines represent likes.
+  \item \textbf{The Domino Swap (Augmenting Paths):} We explained that the in-game ``Rescue'' button represents an alternating chain: $A$ wants what $B$ has, $B$ swaps to an alternative, freeing a spot for $A$.
+  \item \textbf{The Pigeonhole Bottleneck (Hall's Theorem):} We introduced Hall's Marriage Condition as an extension of the Pigeonhole Principle: whenever $k$ people only compete for fewer than $k$ items, no magic swap can ever feed everyone.
+\end{itemize}
+
+\subsection*{Feedback and refinements}
+\textbf{Observed Student Reactions:}
+\begin{itemize}
+  \item In Round 2, nearly 80\% of students initially made a greedy mistake, leaving Hardik starved. After realizing the trap, they excitedly coined the rule: \emph{``Feed the picky eaters first!''} (independently discovering minimum-degree greedy ordering).
+  \item In Round 3A, students thoroughly enjoyed triggering the ``Rescue'' button and tracing which friend swapped plates.
+  \item In Round 3B, several students spent over 3 minutes attempting every combination before realizing the bottleneck. When prompted to count the group size versus the food options, one student exclaimed: \emph{``Three kids want only two plates---it's impossible!''}
+\end{itemize}
+
+\textbf{UI/UX Refinements Made Based on Feedback:}
+\begin{enumerate}
+  \item \textbf{Visual Preference Hints:} Added subtle visual feedback to highlight compatible drop zones when dragging a food item.
+  \item \textbf{Lifeline HUD:} Added a persistent lifeline counter and clear celebration modals to reinforce when an augmenting path was successfully executed.
+  \item \textbf{Educational Victory Screen:} Added a dedicated mathematical summary screen at the conclusion of the game to reinforce bipartite graphs, matchings, and Hall's Theorem.
+\end{enumerate}
+
+\section{Contribution of Each Group Member}
+
+\begin{longtable}{@{}P{1cm}P{3.8cm}P{\dimexpr\textwidth-4.8cm-4\tabcolsep\relax}@{}}
+\toprule
+\textbf{No.} & \textbf{Name / roll number} & \textbf{Specific contribution(s)} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{No.} & \textbf{Name / roll number} & \textbf{Specific contribution(s)} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{\small Continued on the next page}\\
+\endfoot
+\bottomrule
+\endlastfoot
+1 & Akshat \newline (B25CM1004) & Co-developed the web application architecture; implemented the core game loop, round progression, scoring mechanics, and contributed to LaTeX report drafting. \\
+2 & Shouryaveer \newline (B25CS1078) & Co-architected the graph matching engine; implemented the alternating path traversal algorithms, state transition invariants, and dynamic edge-reallocation routines. \\
+3 & Praneeth \newline (B25ES1002) & Programmed the Depth-First Search augmenting path recursive solver; integrated match-validation logic and state synchronization with the frontend. \\
+4 & Anshul \newline (B25CS1006) & Formulated the formal mathematical proofs; co-authored the rigorous derivations for Berge's Augmenting Path Lemma and Hall's Marriage Theorem. \\
+5 & Hardik \newline (B25CS1079) & Engineered the drag-and-drop gameplay mechanics; implemented interactive drop-zone event listeners, item swapping, and assisted in student play-testing. \\
+6 & Aayush \newline (B25CM1045) & Engineered the Web Audio API sound synthesizer; generated procedural audio feedback (success chords, fail buzzers) and integrated acoustic cues. \\
+7 & Hamza \newline (B25CS1016) & Formalized the discrete mathematical model; mapped game rules to bipartite graphs, defined degree invariants, and co-designed experimental trial cases. \\
+8 & Rohit \newline (B25CM1042) & Designed and balanced the round difficulty progression; formulated the degree-constrained greedy heuristics, and co-facilitated student gameplay testing. \\
+9 & Piyush \newline (B25CM1036) & Executed algorithmic and empirical benchmarking; analyzed human greedy failure rates across rounds, and assisted in student session data collection. \\
+10 & Purushottam \newline (B25CM1023) & Conducted combinatorial bottleneck analysis; formalized the minimal Hall violator subset and deficiency proof for the insoluble Round 3B puzzle. \\
+\end{longtable}
+
+\section{References and Acknowledgements}
+\begin{enumerate}[label={[\arabic*]}]
+  \item J.~A.~Bondy and U.~S.~R.~Murty, \emph{Graph Theory with Applications}, Macmillan Press, London, 1976.
+  \item D.~B.~West, \emph{Introduction to Graph Theory}, 2nd ed., Prentice Hall, Upper Saddle River, NJ, 2001.
+  \item K.~H.~Rosen, \emph{Discrete Mathematics and Its Applications}, 8th ed., McGraw-Hill Education, New York, 2019.
+  \item R.~Diestel, \emph{Graph Theory}, Graduate Texts in Mathematics, Vol. 173, 5th ed., Springer-Verlag, Heidelberg, 2017.
+  \item C.~Berge, ``Two theorems in graph theory,'' \emph{Proceedings of the National Academy of Sciences of the United States of America}, vol.~43, no.~9, pp.~842--844, 1957.
+  \item P.~Hall, ``On Representatives of Subsets,'' \emph{Journal of the London Mathematical Society}, vol.~s1-10, no.~1, pp.~26--30, 1935.
+  \item T.~H.~Cormen, C.~E.~Leiserson, R.~L.~Rivest, and C.~Stein, \emph{Introduction to Algorithms}, 4th ed., MIT Press, Cambridge, MA, 2022.
+\end{enumerate}
+
+\textbf{Acknowledgements:} We express our sincere gratitude to the course instructors and teaching assistants of MAL2190 (Discrete Mathematics) at the Indian Institute of Technology Jodhpur for their guidance and for providing the project framework. We also thank the school students whose enthusiastic participation made our interactive play-testing sessions both insightful and rewarding.
+
+\end{document}
