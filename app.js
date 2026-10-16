@@ -1242,7 +1242,7 @@ btnSubmit.addEventListener('click', () => {
 
         showModal(
             '🎉 STAGE CLEARED!',
-            `Perfect bipartite matching achieved!<br><span class="text-emerald-400 font-orbitron font-bold text-sm">+${speedBonus} SPEED BONUS</span>`,
+            `Awesome! Every single friend got their favorite food!<br><span class="text-emerald-400 font-orbitron font-bold text-sm">+${speedBonus} SPEED BONUS</span>`,
             'Next Stage ➔',
             () => {
                 closeModal();
