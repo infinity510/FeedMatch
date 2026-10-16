@@ -428,7 +428,6 @@ const dropZonesContainer = document.getElementById('drop-zones');
 const foodItemsContainer = document.getElementById('food-items');
 const supplyCountEl = document.getElementById('supply-count');
 const scannerBeam = document.getElementById('scanner-beam');
-const arenaLaserSvg = document.getElementById('arena-laser-svg');
 
 const btnUndo = document.getElementById('btn-undo');
 const btnRescue = document.getElementById('btn-rescue');
@@ -697,7 +696,6 @@ function loadRound(index) {
     renderDropZones();
     renderFoodItems(items);
     renderGraphRadar();
-    clearArenaLasers();
 }
 
 function renderDropZones() {
@@ -766,10 +764,6 @@ function renderDropZones() {
         dropArea.dataset.empty = 'true';
         zone.appendChild(dropArea);
 
-        // Interactive hover laser connections
-        zone.addEventListener('mouseenter', () => highlightLasersFromPerson(p));
-        zone.addEventListener('mouseleave', () => clearArenaLasers());
-
         setupDropZoneEvents(zone);
         dropZonesContainer.appendChild(zone);
     });
@@ -803,21 +797,15 @@ function createFoodElement(item) {
     gripSpan.textContent = '::';
     el.appendChild(gripSpan);
 
-    el.addEventListener('mouseenter', () => highlightLasersFromItem(item));
-    el.addEventListener('mouseleave', () => clearArenaLasers());
-
     el.addEventListener('dragstart', (e) => {
         draggedItem = el;
         playGrabSound();
         setTimeout(() => el.classList.add('opacity-40'), 0);
-        highlightCompatibleDropZones(item);
     });
 
     el.addEventListener('dragend', (e) => {
         el.classList.remove('opacity-40');
         draggedItem = null;
-        clearDropZoneHighlights();
-        clearArenaLasers();
     });
 
     return el;
@@ -827,88 +815,6 @@ function updateSupplyCount(count) {
     if (supplyCountEl) {
         supplyCountEl.textContent = `${count} DISHES`;
     }
-}
-
-// Visual highlights during drag
-function highlightCompatibleDropZones(item) {
-    document.querySelectorAll('.drop-zone').forEach(zone => {
-        const person = zone.dataset.person;
-        if (currentPrefs[person] && currentPrefs[person].includes(item)) {
-            zone.classList.add('compatible-target');
-        } else {
-            zone.classList.add('incompatible-target');
-        }
-    });
-}
-
-function clearDropZoneHighlights() {
-    document.querySelectorAll('.drop-zone').forEach(zone => {
-        zone.classList.remove('compatible-target', 'incompatible-target', 'drag-over');
-    });
-}
-
-// ==========================================
-// Live Arena SVG Laser Beam Visualizer
-// ==========================================
-function highlightLasersFromPerson(person) {
-    if (!arenaLaserSvg || draggedItem) return;
-    const zone = document.querySelector(`.drop-zone[data-person="${person}"]`);
-    if (!zone) return;
-
-    const prefs = currentPrefs[person] || [];
-    const arenaRect = arenaLaserSvg.getBoundingClientRect();
-    const zoneRect = zone.getBoundingClientRect();
-
-    const startX = zoneRect.right - arenaRect.left;
-    const startY = zoneRect.top + zoneRect.height / 2 - arenaRect.top;
-
-    let svgHtml = '';
-    prefs.forEach(item => {
-        const foodEl = document.querySelector(`.draggable[data-item="${item}"]`);
-        if (!foodEl) return;
-        const foodRect = foodEl.getBoundingClientRect();
-        const endX = foodRect.left - arenaRect.left;
-        const endY = foodRect.top + foodRect.height / 2 - arenaRect.top;
-
-        const controlX = (startX + endX) / 2;
-        svgHtml += `<path d="M ${startX} ${startY} C ${controlX} ${startY}, ${controlX} ${endY}, ${endX} ${endY}" 
-                          fill="none" stroke="var(--neon-cyan)" stroke-width="2.5" 
-                          stroke-dasharray="4,4" filter="drop-shadow(0 0 6px var(--neon-cyan))" opacity="0.8"/>`;
-    });
-    arenaLaserSvg.innerHTML = svgHtml;
-}
-
-function highlightLasersFromItem(item) {
-    if (!arenaLaserSvg || draggedItem) return;
-    const foodEl = document.querySelector(`.draggable[data-item="${item}"]`);
-    if (!foodEl) return;
-
-    const arenaRect = arenaLaserSvg.getBoundingClientRect();
-    const foodRect = foodEl.getBoundingClientRect();
-
-    const endX = foodRect.left - arenaRect.left;
-    const endY = foodRect.top + foodRect.height / 2 - arenaRect.top;
-
-    let svgHtml = '';
-    players.forEach(p => {
-        if (currentPrefs[p] && currentPrefs[p].includes(item)) {
-            const zone = document.querySelector(`.drop-zone[data-person="${p}"]`);
-            if (!zone) return;
-            const zoneRect = zone.getBoundingClientRect();
-            const startX = zoneRect.right - arenaRect.left;
-            const startY = zoneRect.top + zoneRect.height / 2 - arenaRect.top;
-
-            const controlX = (startX + endX) / 2;
-            svgHtml += `<path d="M ${startX} ${startY} C ${controlX} ${startY}, ${controlX} ${endY}, ${endX} ${endY}" 
-                              fill="none" stroke="var(--neon-green)" stroke-width="2.5" 
-                              stroke-dasharray="4,4" filter="drop-shadow(0 0 6px var(--neon-green))" opacity="0.8"/>`;
-        }
-    });
-    arenaLaserSvg.innerHTML = svgHtml;
-}
-
-function clearArenaLasers() {
-    if (arenaLaserSvg) arenaLaserSvg.innerHTML = '';
 }
 
 // ==========================================
@@ -1081,7 +987,6 @@ btnUndo.addEventListener('click', () => {
     comboMultiplier = 1.0;
     updateComboDisplay();
     renderGraphRadar();
-    clearArenaLasers();
 });
 
 // ==========================================

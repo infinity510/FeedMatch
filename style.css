@@ -205,34 +205,11 @@ body {
     position: relative;
 }
 
-.drop-zone.compatible-target {
-    border-color: var(--neon-green) !important;
-    background: rgba(0, 255, 136, 0.09) !important;
-    box-shadow: 0 0 18px rgba(0, 255, 136, 0.35);
-    animation: pulseBorder 1.4s infinite;
-}
-
-.drop-zone.incompatible-target {
-    opacity: 0.35;
-    filter: grayscale(60%);
-}
-
 .drop-zone.drag-over {
     border-color: var(--neon-cyan) !important;
     background: rgba(0, 240, 255, 0.18) !important;
     transform: scale(1.018);
     box-shadow: 0 0 24px rgba(0, 240, 255, 0.5);
-}
-
-@keyframes pulseBorder {
-    0%, 100% {
-        border-color: rgba(0, 255, 136, 0.5);
-        box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
-    }
-    50% {
-        border-color: rgba(0, 255, 136, 1);
-        box-shadow: 0 0 22px rgba(0, 255, 136, 0.55);
-    }
 }
 
 /* Character Stasis Pod Hunger Bar */
@@ -422,16 +399,6 @@ body {
     z-index: 50;
 }
 
-/* Live Arena Laser SVG */
-#arena-laser-svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 10;
-}
-
 /* Stage Roadmap Dots */
 .roadmap-step {
     transition: all 0.25s ease;
@@ -439,4 +406,15 @@ body {
 .roadmap-step.active {
     box-shadow: 0 0 12px var(--neon-cyan);
     animation: pulseBorder 1.5s infinite;
+}
+
+@keyframes pulseBorder {
+    0%, 100% {
+        border-color: rgba(0, 240, 255, 0.5);
+        box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+    }
+    50% {
+        border-color: rgba(0, 240, 255, 1);
+        box-shadow: 0 0 18px rgba(0, 240, 255, 0.6);
+    }
 }
