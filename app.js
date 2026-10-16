@@ -619,6 +619,7 @@ function updateTimer() {
         }
 
         if (rushCountdown <= 0) {
+            clearInterval(timerInterval);
             playFail();
             showModal('⏰ TIME EXPIRED!', 'The street food rush overwhelmed the kitchen!', 'Retry', () => {
                 closeModal();
@@ -1274,6 +1275,12 @@ radarOverlay.addEventListener('click', (e) => {
     if (e.target === radarOverlay) {
         playBlip();
         radarOverlay.classList.add('hidden');
+    }
+});
+
+window.addEventListener('resize', () => {
+    if (!radarOverlay.classList.contains('hidden')) {
+        renderGraphRadar();
     }
 });
 
