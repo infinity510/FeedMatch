@@ -1,4 +1,4 @@
-// app.js - FeedMatch Cyber Arcade Edition
+// app.js - FeedMatch Ultra Cyber Arcade Edition
 
 // Game State
 let players = ['Rohit', 'Shourya', 'Aman', 'Priya', 'Rahul'];
@@ -20,6 +20,7 @@ let totalLifelinesUsed = 0;
 
 let sfxEnabled = localStorage.getItem('feedmatch_sfx') !== 'false';
 let musicEnabled = localStorage.getItem('feedmatch_music') !== 'false';
+let currentTheme = localStorage.getItem('feedmatch_theme_palette') || 'cyberpunk';
 
 let currentPrefs = {};
 let draggedItem = null;
@@ -63,12 +64,10 @@ function playTone(freq, type, duration, vol = 0.3) {
     }
 }
 
-// Crisp UI Blip
 function playBlip() {
-    playTone(700, 'sine', 0.05, 0.2);
+    playTone(750, 'sine', 0.05, 0.2);
 }
 
-// Item Grab Sound
 function playGrabSound() {
     if (!sfxEnabled) return;
     initAudio();
@@ -78,7 +77,7 @@ function playGrabSound() {
         const gain = audioCtx.createGain();
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(320, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(540, audioCtx.currentTime + 0.08);
+        osc.frequency.exponentialRampToValueAtTime(560, audioCtx.currentTime + 0.08);
         gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
         osc.connect(gain);
@@ -88,7 +87,6 @@ function playGrabSound() {
     } catch (e) {}
 }
 
-// Item Snap / Lock-in Sound
 function playDropSound() {
     if (!sfxEnabled) return;
     initAudio();
@@ -97,8 +95,8 @@ function playDropSound() {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(480, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(240, audioCtx.currentTime + 0.1);
+        osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 0.1);
         gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
         osc.connect(gain);
@@ -108,17 +106,15 @@ function playDropSound() {
     } catch (e) {}
 }
 
-// Ascending Combo Chime
 function playComboSound(multiplier) {
     if (!sfxEnabled) return;
     initAudio();
     const baseFreq = 440 * (1 + (multiplier - 1) * 0.3);
     playTone(baseFreq, 'triangle', 0.08, 0.3);
-    setTimeout(() => playTone(baseFreq * 1.25, 'triangle', 0.08, 0.3), 60);
-    setTimeout(() => playTone(baseFreq * 1.5, 'sine', 0.15, 0.35), 120);
+    setTimeout(() => playTone(baseFreq * 1.25, 'triangle', 0.08, 0.3), 55);
+    setTimeout(() => playTone(baseFreq * 1.5, 'sine', 0.14, 0.35), 110);
 }
 
-// Buzzer with Screen Shake
 function playFail() {
     triggerScreenShake();
     if (!sfxEnabled) return;
@@ -148,7 +144,6 @@ function playFail() {
     } catch (e) {}
 }
 
-// Sci-Fi Rescue Laser Sweep
 function playRescueLaser() {
     if (!sfxEnabled) return;
     initAudio();
@@ -158,8 +153,8 @@ function playRescueLaser() {
         const gain = audioCtx.createGain();
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.3);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1250, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.32, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
@@ -168,7 +163,6 @@ function playRescueLaser() {
     } catch (e) {}
 }
 
-// Success Chords & Fanfare
 function playSuccess() {
     if (!sfxEnabled) return;
     initAudio();
@@ -178,7 +172,6 @@ function playSuccess() {
     setTimeout(() => playTone(1046.50, 'sine', 0.3, 0.45), 240); // C6
 }
 
-// Bottleneck Discovery
 function playBottleneckDiscovery() {
     if (!sfxEnabled) return;
     initAudio();
@@ -186,6 +179,13 @@ function playBottleneckDiscovery() {
     setTimeout(() => playTone(587.33, 'sine', 0.12, 0.4), 100); // D5
     setTimeout(() => playTone(783.99, 'sine', 0.12, 0.4), 200); // G5
     setTimeout(() => playTone(987.77, 'sine', 0.35, 0.45), 300); // B5
+}
+
+function playScanHum() {
+    if (!sfxEnabled) return;
+    initAudio();
+    playTone(600, 'sine', 0.4, 0.25);
+    setTimeout(() => playTone(800, 'sine', 0.3, 0.25), 150);
 }
 
 // Background Music
@@ -198,7 +198,9 @@ function startBgMusic() {
     bgMusic.volume = 0.4;
     
     if (musicEnabled) {
-        bgMusic.play().catch(e => console.log('Autoplay blocked:', e));
+        bgMusic.play().then(() => {
+            document.getElementById('audio-eq').classList.remove('eq-paused');
+        }).catch(e => console.log('Autoplay blocked:', e));
     }
 }
 
@@ -207,21 +209,82 @@ function stopBgMusic() {
         bgMusic.pause();
         bgMusic.currentTime = 0;
     }
+    const eq = document.getElementById('audio-eq');
+    if (eq) eq.classList.add('eq-paused');
 }
 
-// Screen Shake Utility
 function triggerScreenShake() {
     const main = document.querySelector('main');
     if (main) {
         main.classList.remove('shake-screen');
-        void main.offsetWidth; // trigger reflow
+        void main.offsetWidth;
         main.classList.add('shake-screen');
         setTimeout(() => main.classList.remove('shake-screen'), 450);
     }
 }
 
 // ==========================================
-// Culinary Dictionary & Emoji Assets
+// Ambient Cyber Particle Canvas (60fps Engine)
+// ==========================================
+const bgCanvas = document.getElementById('bg-canvas');
+let bgCtx = bgCanvas ? bgCanvas.getContext('2d') : null;
+let particles = [];
+
+function initParticles() {
+    if (!bgCanvas) return;
+    resizeBgCanvas();
+    window.addEventListener('resize', resizeBgCanvas);
+
+    particles = [];
+    const count = Math.min(45, Math.floor(window.innerWidth / 30));
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: Math.random() * bgCanvas.width,
+            y: Math.random() * bgCanvas.height,
+            size: Math.random() * 2 + 0.8,
+            speedY: -(Math.random() * 0.4 + 0.15),
+            speedX: (Math.random() - 0.5) * 0.2,
+            opacity: Math.random() * 0.6 + 0.2,
+            hue: Math.random() > 0.5 ? '180' : '310' // cyan or pink
+        });
+    }
+    requestAnimationFrame(renderParticles);
+}
+
+function resizeBgCanvas() {
+    if (!bgCanvas) return;
+    bgCanvas.width = window.innerWidth;
+    bgCanvas.height = window.innerHeight;
+}
+
+function renderParticles() {
+    if (!bgCtx || !bgCanvas) return;
+    bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+    for (let p of particles) {
+        p.y += p.speedY;
+        p.x += p.speedX;
+
+        if (p.y < 0) {
+            p.y = bgCanvas.height + 5;
+            p.x = Math.random() * bgCanvas.width;
+        }
+
+        bgCtx.beginPath();
+        bgCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        bgCtx.fillStyle = `hsla(${p.hue}, 100%, 70%, ${p.opacity})`;
+        bgCtx.shadowColor = `hsla(${p.hue}, 100%, 60%, 0.8)`;
+        bgCtx.shadowBlur = 8;
+        bgCtx.fill();
+    }
+    bgCtx.shadowBlur = 0;
+    requestAnimationFrame(renderParticles);
+}
+
+initParticles();
+
+// ==========================================
+// Culinary Dictionary & Emojis
 // ==========================================
 const FOOD = {
     "Pizza": "🍕 Pizza",
@@ -241,6 +304,7 @@ const FOOD = {
 const ROUNDS = [
     {
         title: "Stage 1: Sector Alpha (The Warmup)",
+        tag: "WARMUP",
         getItems: () => ["Pizza", "Burger", "Momo", "Samosa", "Vada Pav"],
         getPrefs: (p) => ({
             [p[0]]: ["Pizza"],
@@ -254,6 +318,7 @@ const ROUNDS = [
     },
     {
         title: "Stage 2: The Greedy Trap (Think Twice)",
+        tag: "GREEDY",
         getItems: () => ["Pizza", "Burger", "Momo", "Samosa", "Vada Pav"],
         getPrefs: (p) => ({
             [p[0]]: ["Pizza", "Momo"],
@@ -267,6 +332,7 @@ const ROUNDS = [
     },
     {
         title: "Stage 3A: Rescue Protocol (Augmenting Path)",
+        tag: "RESCUE",
         getItems: () => ["Chaat", "Pav Bhaji", "Maggi", "Pizza", "Burger"],
         getPrefs: (p) => ({
             [p[0]]: ["Chaat", "Pav Bhaji"],
@@ -280,6 +346,7 @@ const ROUNDS = [
     },
     {
         title: "Stage 3B: Hall's Paradox (Bottleneck Alpha)",
+        tag: "HALL-A",
         getItems: () => ["Chaat", "Maggi", "Pizza", "Burger"],
         getPrefs: (p) => ({
             [p[0]]: ["Chaat", "Maggi"],
@@ -293,6 +360,7 @@ const ROUNDS = [
     },
     {
         title: "Stage 4: 5-Cycle Overdrive (No Degree-1 Safety Net!)",
+        tag: "5-CYCLE",
         getItems: () => ["Pizza", "Burger", "Pasta", "Momo", "Chaat"],
         getPrefs: (p) => ({
             [p[0]]: ["Pizza", "Burger"],
@@ -306,6 +374,7 @@ const ROUNDS = [
     },
     {
         title: "Stage 5: The Phantom Bottleneck (Disguised Hall's Failure)",
+        tag: "HALL-B",
         getItems: () => ["Pizza", "Burger", "Momo", "Samosa", "Pav Bhaji"],
         getPrefs: (p) => ({
             [p[0]]: ["Pizza", "Burger"],
@@ -319,6 +388,7 @@ const ROUNDS = [
     },
     {
         title: "Stage 6: Cyber Feast (Grandmaster Showdown)",
+        tag: "FINAL",
         getItems: () => ["Pizza", "Burger", "Pasta", "Momo", "Pav Bhaji"],
         getPrefs: (p) => ({
             [p[0]]: ["Pizza", "Pasta", "Pav Bhaji"],
@@ -350,12 +420,15 @@ const comboMultiplierEl = document.getElementById('combo-multiplier');
 const comboFlame = document.getElementById('combo-flame');
 const coresDisplay = document.getElementById('cores-display');
 const headerHighScore = document.getElementById('header-highscore');
+const roadmapContainer = document.getElementById('roadmap-container');
 
 const roundTitle = document.getElementById('round-title');
 const roundDesc = document.getElementById('round-desc');
 const dropZonesContainer = document.getElementById('drop-zones');
 const foodItemsContainer = document.getElementById('food-items');
 const supplyCountEl = document.getElementById('supply-count');
+const scannerBeam = document.getElementById('scanner-beam');
+const arenaLaserSvg = document.getElementById('arena-laser-svg');
 
 const btnUndo = document.getElementById('btn-undo');
 const btnRescue = document.getElementById('btn-rescue');
@@ -372,6 +445,7 @@ const btnMusic = document.getElementById('btn-music');
 const sfxIcon = document.getElementById('sfx-icon');
 const musicIcon = document.getElementById('music-icon');
 const themeIcon = document.getElementById('theme-icon');
+const audioEq = document.getElementById('audio-eq');
 
 // Modal Elements
 const modalOverlay = document.getElementById('modal-overlay');
@@ -393,6 +467,30 @@ const btnShare = document.getElementById('btn-share');
 // Initialize High Score in Header
 headerHighScore.textContent = highScore.toLocaleString();
 
+// Apply Saved Theme Palette
+applyThemePalette(currentTheme);
+
+function applyThemePalette(palette) {
+    currentTheme = palette;
+    document.body.setAttribute('data-theme', palette);
+    localStorage.setItem('feedmatch_theme_palette', palette);
+
+    document.querySelectorAll('.theme-accent-btn').forEach(btn => {
+        if (btn.dataset.palette === palette) {
+            btn.classList.add('bg-gray-800', 'border', 'border-cyan-400');
+        } else {
+            btn.classList.remove('bg-gray-800', 'border', 'border-cyan-400');
+        }
+    });
+}
+
+document.querySelectorAll('.theme-accent-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        playBlip();
+        applyThemePalette(btn.dataset.palette);
+    });
+});
+
 // ==========================================
 // Audio & Theme Control Listeners
 // ==========================================
@@ -409,8 +507,10 @@ btnMusic.addEventListener('click', () => {
     musicIcon.textContent = musicEnabled ? '🎵' : '🔇';
     if (musicEnabled) {
         startBgMusic();
+        audioEq.classList.remove('eq-paused');
     } else {
         stopBgMusic();
+        audioEq.classList.add('eq-paused');
     }
 });
 
@@ -424,6 +524,7 @@ btnTheme.addEventListener('click', () => {
 // Sync Icons on Load
 sfxIcon.textContent = sfxEnabled ? '🔊' : '🔇';
 musicIcon.textContent = musicEnabled ? '🎵' : '🔇';
+if (!musicEnabled) audioEq.classList.add('eq-paused');
 
 // Mode Cards selection styling
 document.querySelectorAll('.mode-card').forEach(card => {
@@ -545,7 +646,36 @@ function shuffle(array) {
 }
 
 // ==========================================
-// Round Loading & Drop Zones Rendering
+// Visual Stage Roadmap
+// ==========================================
+function renderRoadmap() {
+    if (!roadmapContainer) return;
+    roadmapContainer.innerHTML = '';
+
+    ROUNDS.forEach((r, idx) => {
+        const step = document.createElement('div');
+        step.className = 'roadmap-step flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[10px] font-mono font-bold transition-all';
+
+        if (idx < currentRound) {
+            // Completed
+            step.className += ' bg-emerald-950/60 border-emerald-500/50 text-emerald-400';
+            step.innerHTML = `<span>✓</span> <span>${r.tag}</span>`;
+        } else if (idx === currentRound) {
+            // Active
+            step.className += ' active bg-cyan-950 border-cyan-400 text-cyan-300 font-extrabold text-glow-cyan';
+            step.innerHTML = `<span class="animate-pulse">●</span> <span>${r.tag}</span>`;
+        } else {
+            // Upcoming
+            step.className += ' bg-gray-900/40 border-gray-800 text-gray-500';
+            step.innerHTML = `<span>○</span> <span>${r.tag}</span>`;
+        }
+
+        roadmapContainer.appendChild(step);
+    });
+}
+
+// ==========================================
+// Round Loading & Stasis Pods Rendering
 // ==========================================
 function loadRound(index) {
     roundStartTime = Date.now();
@@ -561,56 +691,67 @@ function loadRound(index) {
     currentPrefs = round.getPrefs(players);
     augmentingPathHistory = null;
 
+    renderRoadmap();
+
     const items = shuffle([...round.getItems()]);
     renderDropZones();
     renderFoodItems(items);
     renderGraphRadar();
+    clearArenaLasers();
 }
 
 function renderDropZones() {
     dropZonesContainer.innerHTML = '';
     players.forEach((p, idx) => {
         const zone = document.createElement('div');
-        zone.className = 'drop-zone flex items-center justify-between bg-gray-800/80 border border-gray-700/80 hover:border-cyan-500/40 rounded-2xl p-3 shadow-md min-h-[75px] gap-3 transition-all';
+        zone.className = 'drop-zone flex items-center justify-between bg-gray-900/80 border border-gray-700/80 hover:border-cyan-500/40 rounded-2xl p-2.5 md:p-3 shadow-md min-h-[72px] gap-2.5 transition-all';
         zone.dataset.person = p;
         zone.dataset.index = idx;
 
-        // Left info container: Avatar + Name + Preference chips
+        // Left info container: Avatar + Name + Hunger Energy Bar + Preference chips
         const leftBox = document.createElement('div');
-        leftBox.className = 'flex items-center gap-3 min-w-0';
+        leftBox.className = 'flex items-center gap-2.5 min-w-0';
 
         // Avatar with status ring
         const avatarWrapper = document.createElement('div');
         avatarWrapper.className = 'relative shrink-0';
         const avatar = document.createElement('img');
-        avatar.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${p}&backgroundColor=1e293b`;
-        avatar.className = 'w-11 h-11 rounded-full border-2 border-cyan-500/50 bg-gray-900 object-cover';
+        avatar.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${p}&backgroundColor=111827`;
+        avatar.className = 'w-10 h-10 md:w-11 md:h-11 rounded-full border-2 border-cyan-500/50 bg-gray-900 object-cover';
         avatarWrapper.appendChild(avatar);
 
         // Status pip
         const statusPip = document.createElement('span');
-        statusPip.className = 'status-pip absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 border-2 border-gray-900';
+        statusPip.className = 'status-pip absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-amber-500 border-2 border-gray-900';
         statusPip.title = 'Hungry';
         avatarWrapper.appendChild(statusPip);
 
         leftBox.appendChild(avatarWrapper);
 
-        // Name and Preferred food badges
+        // Name, Hunger Bar and Preferred food badges
         const info = document.createElement('div');
         info.className = 'flex flex-col min-w-0';
 
         const nameLabel = document.createElement('span');
-        nameLabel.className = 'font-bold font-orbitron text-sm text-cyan-200 truncate tracking-wide';
+        nameLabel.className = 'font-bold font-orbitron text-xs md:text-sm text-cyan-200 truncate tracking-wide';
         nameLabel.textContent = p;
         info.appendChild(nameLabel);
 
+        // Hunger Energy Bar
+        const hungerTrack = document.createElement('div');
+        hungerTrack.className = 'hunger-track w-24 md:w-32 my-1';
+        const hungerBar = document.createElement('div');
+        hungerBar.className = 'hunger-bar-hungry';
+        hungerTrack.appendChild(hungerBar);
+        info.appendChild(hungerTrack);
+
         // Preferred dishes chips
         const chipsContainer = document.createElement('div');
-        chipsContainer.className = 'flex flex-wrap gap-1 mt-1';
+        chipsContainer.className = 'flex flex-wrap gap-1';
         const prefs = currentPrefs[p] || [];
         prefs.forEach(item => {
             const chip = document.createElement('span');
-            chip.className = 'text-[10px] font-mono px-1.5 py-0.5 bg-gray-900/90 text-cyan-300 border border-cyan-500/30 rounded-md';
+            chip.className = 'text-[9px] font-mono px-1.5 py-0.5 bg-gray-950/90 text-cyan-300 border border-cyan-500/30 rounded-md';
             chip.textContent = FOOD[item] ? FOOD[item].split(' ')[0] + ' ' + item : item;
             chipsContainer.appendChild(chip);
         });
@@ -621,9 +762,13 @@ function renderDropZones() {
 
         // Drop Area Slot
         const dropArea = document.createElement('div');
-        dropArea.className = 'item-container flex-grow flex items-center justify-end min-h-[46px] min-w-[130px] border border-dashed border-gray-700/60 rounded-xl p-1 bg-gray-900/40 transition-colors';
+        dropArea.className = 'item-container flex-grow flex items-center justify-end min-h-[42px] min-w-[120px] border border-dashed border-gray-700/60 rounded-xl p-1 bg-gray-950/40 transition-colors';
         dropArea.dataset.empty = 'true';
         zone.appendChild(dropArea);
+
+        // Interactive hover laser connections
+        zone.addEventListener('mouseenter', () => highlightLasersFromPerson(p));
+        zone.addEventListener('mouseleave', () => clearArenaLasers());
 
         setupDropZoneEvents(zone);
         dropZonesContainer.appendChild(zone);
@@ -644,7 +789,7 @@ function renderFoodItems(items) {
 
 function createFoodElement(item) {
     const el = document.createElement('div');
-    el.className = 'draggable cyber-btn bg-gradient-to-r from-amber-950/60 to-orange-950/60 border border-amber-500/40 hover:border-amber-400 rounded-xl px-3.5 py-2.5 shadow-md text-amber-200 font-bold font-rajdhani text-sm flex items-center justify-between gap-2 transition-all';
+    el.className = 'draggable cyber-btn bg-gradient-to-r from-amber-950/60 to-orange-950/60 border border-amber-500/40 hover:border-amber-400 rounded-xl px-3 py-2 shadow-md text-amber-200 font-bold font-rajdhani text-xs md:text-sm flex items-center justify-between gap-2 transition-all';
     el.draggable = true;
     el.dataset.item = item;
 
@@ -654,9 +799,12 @@ function createFoodElement(item) {
     el.appendChild(labelSpan);
 
     const gripSpan = document.createElement('span');
-    gripSpan.className = 'text-xs text-amber-500/60 pointer-events-none font-mono';
+    gripSpan.className = 'text-[10px] text-amber-500/60 pointer-events-none font-mono';
     gripSpan.textContent = '::';
     el.appendChild(gripSpan);
+
+    el.addEventListener('mouseenter', () => highlightLasersFromItem(item));
+    el.addEventListener('mouseleave', () => clearArenaLasers());
 
     el.addEventListener('dragstart', (e) => {
         draggedItem = el;
@@ -669,6 +817,7 @@ function createFoodElement(item) {
         el.classList.remove('opacity-40');
         draggedItem = null;
         clearDropZoneHighlights();
+        clearArenaLasers();
     });
 
     return el;
@@ -696,6 +845,70 @@ function clearDropZoneHighlights() {
     document.querySelectorAll('.drop-zone').forEach(zone => {
         zone.classList.remove('compatible-target', 'incompatible-target', 'drag-over');
     });
+}
+
+// ==========================================
+// Live Arena SVG Laser Beam Visualizer
+// ==========================================
+function highlightLasersFromPerson(person) {
+    if (!arenaLaserSvg || draggedItem) return;
+    const zone = document.querySelector(`.drop-zone[data-person="${person}"]`);
+    if (!zone) return;
+
+    const prefs = currentPrefs[person] || [];
+    const arenaRect = arenaLaserSvg.getBoundingClientRect();
+    const zoneRect = zone.getBoundingClientRect();
+
+    const startX = zoneRect.right - arenaRect.left;
+    const startY = zoneRect.top + zoneRect.height / 2 - arenaRect.top;
+
+    let svgHtml = '';
+    prefs.forEach(item => {
+        const foodEl = document.querySelector(`.draggable[data-item="${item}"]`);
+        if (!foodEl) return;
+        const foodRect = foodEl.getBoundingClientRect();
+        const endX = foodRect.left - arenaRect.left;
+        const endY = foodRect.top + foodRect.height / 2 - arenaRect.top;
+
+        const controlX = (startX + endX) / 2;
+        svgHtml += `<path d="M ${startX} ${startY} C ${controlX} ${startY}, ${controlX} ${endY}, ${endX} ${endY}" 
+                          fill="none" stroke="var(--neon-cyan)" stroke-width="2.5" 
+                          stroke-dasharray="4,4" filter="drop-shadow(0 0 6px var(--neon-cyan))" opacity="0.8"/>`;
+    });
+    arenaLaserSvg.innerHTML = svgHtml;
+}
+
+function highlightLasersFromItem(item) {
+    if (!arenaLaserSvg || draggedItem) return;
+    const foodEl = document.querySelector(`.draggable[data-item="${item}"]`);
+    if (!foodEl) return;
+
+    const arenaRect = arenaLaserSvg.getBoundingClientRect();
+    const foodRect = foodEl.getBoundingClientRect();
+
+    const endX = foodRect.left - arenaRect.left;
+    const endY = foodRect.top + foodRect.height / 2 - arenaRect.top;
+
+    let svgHtml = '';
+    players.forEach(p => {
+        if (currentPrefs[p] && currentPrefs[p].includes(item)) {
+            const zone = document.querySelector(`.drop-zone[data-person="${p}"]`);
+            if (!zone) return;
+            const zoneRect = zone.getBoundingClientRect();
+            const startX = zoneRect.right - arenaRect.left;
+            const startY = zoneRect.top + zoneRect.height / 2 - arenaRect.top;
+
+            const controlX = (startX + endX) / 2;
+            svgHtml += `<path d="M ${startX} ${startY} C ${controlX} ${startY}, ${controlX} ${endY}, ${endX} ${endY}" 
+                              fill="none" stroke="var(--neon-green)" stroke-width="2.5" 
+                              stroke-dasharray="4,4" filter="drop-shadow(0 0 6px var(--neon-green))" opacity="0.8"/>`;
+        }
+    });
+    arenaLaserSvg.innerHTML = svgHtml;
+}
+
+function clearArenaLasers() {
+    if (arenaLaserSvg) arenaLaserSvg.innerHTML = '';
 }
 
 // ==========================================
@@ -733,7 +946,7 @@ function setupDropZoneEvents(zone, isPool = false) {
                 updateComboDisplay();
                 showModal(
                     '🚫 INCOMPATIBLE DISH!',
-                    `${person} rejects ${item}!<br><span class="text-xs text-gray-400">Review ${person}'s preference tags: [${currentPrefs[person].join(', ')}]</span>`,
+                    `${person} rejects ${item}!<br><span class="text-xs text-gray-400">Review ${person}'s preferences: [${currentPrefs[person].join(', ')}]</span>`,
                     'Acknowledged',
                     () => closeModal(),
                     '🛑'
@@ -750,6 +963,7 @@ function setupDropZoneEvents(zone, isPool = false) {
 
             container.appendChild(draggedItem);
             playDropSound();
+            spawnCyberSparks(zone);
 
             // Calculate Combos and Floating Score
             handleMatchScoring(zone);
@@ -758,6 +972,31 @@ function setupDropZoneEvents(zone, isPool = false) {
             renderGraphRadar();
         }
     });
+}
+
+function spawnCyberSparks(targetEl) {
+    const rect = targetEl.getBoundingClientRect();
+    const centerX = rect.right - 40;
+    const centerY = rect.top + rect.height / 2;
+
+    const colors = ['#00f0ff', '#ff007f', '#00ff88', '#ffb800'];
+    for (let i = 0; i < 12; i++) {
+        const spark = document.createElement('div');
+        spark.className = 'cyber-spark';
+        spark.style.left = `${centerX}px`;
+        spark.style.top = `${centerY}px`;
+        spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * 45 + 15;
+        spark.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+        spark.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+
+        document.body.appendChild(spark);
+        setTimeout(() => {
+            if (spark.parentNode) spark.parentNode.removeChild(spark);
+        }, 600);
+    }
 }
 
 function handleMatchScoring(zone) {
@@ -781,7 +1020,6 @@ function handleMatchScoring(zone) {
     playComboSound(comboMultiplier);
     updateComboDisplay();
 
-    // Floating Score Animation
     showFloatingScore(zone, `+${points}`, comboMultiplier > 1.0 ? `COMBO x${comboMultiplier}!` : null);
 }
 
@@ -802,14 +1040,14 @@ function showFloatingScore(targetEl, text, comboText) {
     const rect = targetEl.getBoundingClientRect();
     const floater = document.createElement('div');
     floater.className = 'floating-score';
-    floater.style.left = `${rect.right - 80}px`;
+    floater.style.left = `${rect.right - 90}px`;
     floater.style.top = `${rect.top}px`;
-    floater.innerHTML = comboText ? `<span>${text}</span><br><span class="text-xs text-pink-400">${comboText}</span>` : text;
+    floater.innerHTML = comboText ? `<span>${text}</span><br><span class="text-xs text-pink-400 font-mono">${comboText}</span>` : text;
     document.body.appendChild(floater);
 
     setTimeout(() => {
         if (floater.parentNode) floater.parentNode.removeChild(floater);
-    }, 800);
+    }, 850);
 }
 
 function refreshZoneStatuses() {
@@ -818,19 +1056,22 @@ function refreshZoneStatuses() {
         if (!zone) return;
         const container = zone.querySelector('.item-container');
         const pip = zone.querySelector('.status-pip');
+        const hungerTrack = zone.querySelector('.hunger-track');
+
         if (container && container.children.length > 0) {
-            pip.className = 'status-pip absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-gray-900 shadow-[0_0_8px_#00ff88]';
+            pip.className = 'status-pip absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-gray-900 shadow-[0_0_8px_#00ff88]';
             pip.title = 'Satisfied';
-            zone.classList.add('border-emerald-500/40');
+            zone.classList.add('border-emerald-500/50', 'bg-emerald-950/20');
+            if (hungerTrack) hungerTrack.innerHTML = '<div class="hunger-bar-fed"></div>';
         } else {
-            pip.className = 'status-pip absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 border-2 border-gray-900';
+            pip.className = 'status-pip absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-amber-500 border-2 border-gray-900';
             pip.title = 'Hungry';
-            zone.classList.remove('border-emerald-500/40');
+            zone.classList.remove('border-emerald-500/50', 'bg-emerald-950/20');
+            if (hungerTrack) hungerTrack.innerHTML = '<div class="hunger-bar-hungry"></div>';
         }
     });
 }
 
-// Reset Button Listener
 btnUndo.addEventListener('click', () => {
     playBlip();
     const allItems = document.querySelectorAll('.draggable');
@@ -840,6 +1081,7 @@ btnUndo.addEventListener('click', () => {
     comboMultiplier = 1.0;
     updateComboDisplay();
     renderGraphRadar();
+    clearArenaLasers();
 });
 
 // ==========================================
@@ -875,7 +1117,6 @@ btnRescue.addEventListener('click', () => {
         return;
     }
 
-    // Augmented Path Tracing
     let visited = {};
     let augmentingChain = [];
 
@@ -956,42 +1197,47 @@ btnRescue.addEventListener('click', () => {
 });
 
 // ==========================================
-// Hall's Marriage Theorem Impossibility Check
+// Hall's Marriage Theorem Impossibility Check & Scanner
 // ==========================================
 btnImpossible.addEventListener('click', () => {
     const round = ROUNDS[currentRound];
 
     if (round.impossible) {
-        playBottleneckDiscovery();
-        showPartyPopper();
+        // Trigger Cyber Scanner Animation
+        triggerScannerSweep();
+        playScanHum();
 
-        // Calculate and reveal the minimal Hall's Violator Subset S
-        const violator = findHallViolator(players, currentPrefs);
-        let mathExplanation = "<strong>Hall's Marriage Theorem Verified:</strong><br>";
-        if (violator) {
-            mathExplanation += `Violating Subset <em>S</em> = {${violator.subset.join(', ')}}<br>` +
-                              `Size |S| = ${violator.subset.length}<br>` +
-                              `Neighborhood <em>N(S)</em> = {${violator.neighborhood.join(', ')}}<br>` +
-                              `Size |N(S)| = ${violator.neighborhood.length}<br>` +
-                              `<span class="text-rose-400 font-bold">|N(S)| = ${violator.neighborhood.length} &lt; |S| = ${violator.subset.length}</span> (Deficit detected!)`;
-        } else {
-            mathExplanation += "Total food options are strictly smaller than the subgroup of hungry agents!";
-        }
+        setTimeout(() => {
+            playBottleneckDiscovery();
+            showPartyPopper();
 
-        const bonus = 2500;
-        score += bonus;
-        scoreCounter.textContent = score.toLocaleString();
+            const violator = findHallViolator(players, currentPrefs);
+            let mathExplanation = "<strong>Hall's Marriage Theorem Verified:</strong><br>";
+            if (violator) {
+                mathExplanation += `Violating Subset <em>S</em> = {${violator.subset.join(', ')}}<br>` +
+                                  `Size |S| = ${violator.subset.length}<br>` +
+                                  `Neighborhood <em>N(S)</em> = {${violator.neighborhood.join(', ')}}<br>` +
+                                  `Size |N(S)| = ${violator.neighborhood.length}<br>` +
+                                  `<span class="text-rose-400 font-bold font-mono">|N(S)| = ${violator.neighborhood.length} &lt; |S| = ${violator.subset.length}</span> (Deficit detected!)`;
+            } else {
+                mathExplanation += "Total food options are strictly smaller than the subgroup of hungry agents!";
+            }
 
-        showModal(
-            '🧮 BOTTLENECK CERTIFIED!',
-            `${mathExplanation}<br><br><span class="text-emerald-400 font-bold font-orbitron">+${bonus} TACTICAL PTS</span>`,
-            'Proceed to Next Round',
-            () => {
-                closeModal();
-                advanceRound();
-            },
-            '🏆'
-        );
+            const bonus = 2500;
+            score += bonus;
+            scoreCounter.textContent = score.toLocaleString();
+
+            showModal(
+                '🧮 BOTTLENECK CERTIFIED!',
+                `${mathExplanation}<br><br><span class="text-emerald-400 font-bold font-orbitron">+${bonus} TACTICAL PTS</span>`,
+                'Proceed to Next Round',
+                () => {
+                    closeModal();
+                    advanceRound();
+                },
+                '🏆'
+            );
+        }, 700);
     } else {
         playFail();
         score = Math.max(0, score - 300);
@@ -1009,7 +1255,17 @@ btnImpossible.addEventListener('click', () => {
     }
 });
 
-// Helper: Algorithmically find subset S where |N(S)| < |S|
+function triggerScannerSweep() {
+    if (!scannerBeam) return;
+    scannerBeam.classList.remove('hidden', 'scan-line-active');
+    void scannerBeam.offsetWidth;
+    scannerBeam.classList.add('scan-line-active');
+    setTimeout(() => {
+        scannerBeam.classList.add('hidden');
+        scannerBeam.classList.remove('scan-line-active');
+    }, 1200);
+}
+
 function findHallViolator(agents, prefs) {
     const n = agents.length;
     for (let mask = 1; mask < (1 << n); mask++) {
@@ -1057,7 +1313,6 @@ btnSubmit.addEventListener('click', () => {
         playSuccess();
         showPartyPopper();
 
-        // Speed bonus
         const timeSpent = Math.floor((Date.now() - roundStartTime) / 1000);
         const speedBonus = Math.max(0, 1500 - timeSpent * 20);
         score += speedBonus;
@@ -1122,7 +1377,6 @@ function renderGraphRadar() {
     const ctx = radarCanvas.getContext('2d');
     if (!ctx) return;
 
-    // Adjust canvas resolution for DPI
     const rect = radarCanvas.getBoundingClientRect();
     const width = rect.width || 600;
     const height = rect.height || 360;
@@ -1139,7 +1393,6 @@ function renderGraphRadar() {
     const leftX = width * 0.22;
     const rightX = width * 0.78;
 
-    // Current matching map
     const currentMatches = {};
     players.forEach(p => {
         const zone = document.querySelector(`.drop-zone[data-person="${p}"]`);
@@ -1149,7 +1402,6 @@ function renderGraphRadar() {
         }
     });
 
-    // Compute Y positions
     const playerCoords = {};
     const itemCoords = {};
 
@@ -1178,13 +1430,11 @@ function renderGraphRadar() {
             ctx.lineTo(iCoord.x, iCoord.y);
 
             if (isMatched) {
-                // Matched Edge (M)
                 ctx.strokeStyle = '#00ff88';
                 ctx.lineWidth = 3.5;
                 ctx.shadowColor = '#00ff88';
                 ctx.shadowBlur = 10;
             } else {
-                // Preference Edge
                 ctx.strokeStyle = 'rgba(0, 240, 255, 0.25)';
                 ctx.lineWidth = 1.2;
                 ctx.shadowBlur = 0;
@@ -1233,7 +1483,6 @@ function renderGraphRadar() {
         ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // Label
         ctx.font = 'bold 12px Orbitron, sans-serif';
         ctx.fillStyle = '#e2e8f0';
         ctx.textAlign = 'right';
@@ -1257,7 +1506,6 @@ function renderGraphRadar() {
         ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // Label
         ctx.font = 'bold 12px Rajdhani, sans-serif';
         ctx.fillStyle = '#fef08a';
         ctx.textAlign = 'left';
@@ -1282,18 +1530,15 @@ function endGame() {
     const s = String(totalSeconds % 60).padStart(2, '0');
     const timeFormatted = `${m}:${s}`;
 
-    // Compute Final Score with Lifeline & Speed Bonuses
     const coreBonus = lifelines * 1000;
     score += coreBonus;
 
-    // Check High Score
     if (score > highScore) {
         highScore = score;
         localStorage.setItem('feedmatch_highscore', highScore);
         headerHighScore.textContent = highScore.toLocaleString();
     }
 
-    // Rank Tier Calculation
     let rank = 'C-TIER';
     if (score >= 12000 && totalLifelinesUsed === 0) {
         rank = 'S-TIER (GRANDMASTER)';
@@ -1325,7 +1570,7 @@ btnShare.addEventListener('click', () => {
     const time = finalTimeEl.textContent;
     const finalScore = finalScoreEl.textContent;
 
-    const shareText = `⚡ FEEDMATCH // CYBER ARCADE ⚡\n` +
+    const shareText = `⚡ FEEDMATCH // ULTRA CYBER ARCADE ⚡\n` +
                       `🏆 Rank: ${rank}\n` +
                       `⭐ Score: ${finalScore} PTS\n` +
                       `⏱️ Time: ${time}\n` +
@@ -1347,7 +1592,6 @@ btnShare.addEventListener('click', () => {
 // Keyboard Controls
 // ==========================================
 window.addEventListener('keydown', (e) => {
-    // Only capture when game screen is active and modal is hidden
     if (screens.game.classList.contains('hidden') || !modalOverlay.classList.contains('hidden')) return;
 
     if (e.code === 'Space') {

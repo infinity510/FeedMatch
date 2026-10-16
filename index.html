@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FeedMatch - Cyber Arcade Edition</title>
+    <title>FeedMatch - Ultra Cyber Arcade Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="style.css">
@@ -14,8 +14,8 @@
                 extend: {
                     colors: {
                         cyber: {
-                            dark: '#090d16',
-                            card: '#0f172a',
+                            dark: '#080c14',
+                            card: '#0d1424',
                             border: '#00f0ff',
                             neonPink: '#ff007f',
                             neonGreen: '#00ff88',
@@ -26,6 +26,7 @@
                     fontFamily: {
                         orbitron: ['Orbitron', 'monospace'],
                         rajdhani: ['Rajdhani', 'sans-serif'],
+                        tech: ['Share Tech Mono', 'monospace'],
                         sans: ['Rajdhani', 'Poppins', 'sans-serif']
                     }
                 }
@@ -33,258 +34,307 @@
         }
     </script>
 </head>
-<body class="bg-gray-950 text-gray-100 h-screen flex flex-col overflow-hidden cyber-grid transition-colors duration-300">
+<body class="bg-gray-950 text-gray-100 h-screen flex flex-col overflow-hidden transition-colors duration-300 relative">
+
+    <!-- Ambient Cyber Dust Particle Canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Perspective Cyber Grid Floor -->
+    <div class="cyber-perspective-floor"></div>
 
     <!-- Header HUD -->
-    <header class="bg-gray-900/90 dark:bg-gray-950/90 backdrop-blur-xl border-b border-cyan-500/30 px-5 py-3 shadow-[0_4px_20px_rgba(0,240,255,0.15)] flex justify-between items-center z-20 transition-all duration-300">
+    <header class="relative bg-gray-900/85 dark:bg-gray-950/85 backdrop-blur-2xl border-b border-cyan-500/30 px-4 md:px-6 py-2.5 shadow-[0_4px_25px_rgba(0,240,255,0.12)] flex justify-between items-center z-20">
         <!-- Brand / Title -->
         <div class="flex items-center gap-3">
-            <span class="text-3xl filter drop-shadow-[0_0_8px_#00f0ff] animate-pulse">⚡</span>
+            <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-cyan-950/60 border border-cyan-500/40 shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+                <span class="text-2xl animate-pulse">⚡</span>
+                <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            </div>
             <div>
-                <h1 class="text-2xl font-black font-orbitron tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-teal-300 to-fuchsia-500 text-glow-cyan">FEEDMATCH</h1>
-                <p class="text-[10px] font-mono tracking-widest text-cyan-400/80 uppercase">Cyber Arcade // Discrete Math</p>
+                <h1 class="text-xl md:text-2xl font-black font-orbitron tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-teal-300 to-fuchsia-500 text-glow-cyan">FEEDMATCH</h1>
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] font-mono tracking-widest text-cyan-400/90 uppercase font-semibold">ULTRA CYBER ARCADE</span>
+                    <span class="text-[9px] font-mono text-gray-500">//</span>
+                    <span class="text-[9px] font-mono text-emerald-400 font-semibold flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> SYS.ONLINE
+                    </span>
+                </div>
             </div>
         </div>
 
         <!-- Center In-Game HUD -->
-        <div id="game-info" class="hidden flex items-center gap-3 md:gap-6 bg-gray-900/80 border border-cyan-500/30 px-4 py-1.5 rounded-2xl shadow-inner font-rajdhani">
+        <div id="game-info" class="hidden flex items-center gap-2 md:gap-5 bg-gray-900/90 border border-cyan-500/30 px-3 md:px-5 py-1.5 rounded-2xl shadow-inner font-rajdhani">
             <!-- Stage Tracker -->
-            <div class="flex items-center gap-2">
-                <span class="text-xs uppercase text-cyan-400 font-bold tracking-wider">STAGE</span>
-                <span id="stage-badge" class="font-orbitron text-sm font-extrabold text-cyan-300 px-2 py-0.5 bg-cyan-950/80 border border-cyan-500/40 rounded-lg">1/7</span>
+            <div class="flex items-center gap-1.5">
+                <span class="text-[11px] uppercase text-cyan-400 font-bold tracking-wider font-mono">STAGE</span>
+                <span id="stage-badge" class="font-orbitron text-xs md:text-sm font-extrabold text-cyan-300 px-2 py-0.5 bg-cyan-950/80 border border-cyan-500/40 rounded-lg">1/7</span>
             </div>
 
-            <div class="h-4 w-px bg-gray-700"></div>
+            <div class="h-4 w-px bg-gray-700/80"></div>
 
             <!-- Timer -->
             <div class="flex items-center gap-1.5">
                 <span class="text-sm">⏱️</span>
-                <span id="timer" class="font-orbitron text-sm font-bold text-amber-400 w-14 text-center">00:00</span>
+                <span id="timer" class="font-orbitron text-xs md:text-sm font-bold text-amber-400 w-14 text-center">00:00</span>
             </div>
 
-            <div class="h-4 w-px bg-gray-700"></div>
+            <div class="h-4 w-px bg-gray-700/80"></div>
 
             <!-- Combo Meter -->
             <div class="flex items-center gap-1.5">
                 <span id="combo-flame" class="text-sm transition-transform">🔥</span>
-                <span id="combo-multiplier" class="font-orbitron text-sm font-black text-pink-400">1.0x</span>
+                <span id="combo-multiplier" class="font-orbitron text-xs md:text-sm font-black text-pink-400">1.0x</span>
             </div>
 
-            <div class="h-4 w-px bg-gray-700"></div>
+            <div class="h-4 w-px bg-gray-700/80"></div>
 
             <!-- Score -->
             <div class="flex items-center gap-1.5">
                 <span class="text-sm">🏆</span>
-                <span id="score-counter" class="font-orbitron text-sm font-extrabold text-emerald-400">0</span>
+                <span id="score-counter" class="font-orbitron text-xs md:text-sm font-extrabold text-emerald-400">0</span>
             </div>
 
-            <div class="h-4 w-px bg-gray-700"></div>
+            <div class="h-4 w-px bg-gray-700/80"></div>
 
             <!-- Lifeline Augment Cores -->
             <div id="lifelines-container" class="flex items-center gap-1">
-                <span class="text-xs uppercase text-pink-400 font-bold mr-1">CORES</span>
-                <div id="cores-display" class="flex gap-1 text-base">💖💖💖</div>
+                <span class="hidden sm:inline text-[11px] uppercase text-pink-400 font-bold font-mono mr-1">CORES</span>
+                <div id="cores-display" class="flex gap-1 text-sm md:text-base">💖💖💖</div>
             </div>
         </div>
 
-        <!-- Right Controls -->
-        <div class="flex items-center gap-2 md:gap-3">
+        <!-- Right Controls & Theme Customizer -->
+        <div class="flex items-center gap-1.5 md:gap-3">
             <!-- High Score Chip -->
-            <div class="hidden sm:flex items-center gap-1 bg-amber-950/40 border border-amber-500/40 px-2.5 py-1 rounded-xl text-xs font-mono text-amber-300">
-                <span>HI:</span>
+            <div class="hidden lg:flex items-center gap-1 bg-amber-950/40 border border-amber-500/40 px-2.5 py-1 rounded-xl text-xs font-mono text-amber-300">
+                <span class="text-[10px] text-amber-400">HI-SCORE:</span>
                 <span id="header-highscore" class="font-orbitron font-bold">0</span>
             </div>
 
+            <!-- Theme Accent Selector Dropdown/Buttons -->
+            <div class="flex items-center bg-gray-900/90 border border-gray-700/80 rounded-xl p-0.5">
+                <button class="theme-accent-btn px-2 py-1 text-xs rounded-lg transition-all text-cyan-400 hover:bg-gray-800" data-palette="cyberpunk" title="Cyberpunk Cyan">🩵</button>
+                <button class="theme-accent-btn px-2 py-1 text-xs rounded-lg transition-all text-emerald-400 hover:bg-gray-800" data-palette="matrix" title="Matrix Emerald">💚</button>
+                <button class="theme-accent-btn px-2 py-1 text-xs rounded-lg transition-all text-amber-400 hover:bg-gray-800" data-palette="synthwave" title="Synthwave Orange">🧡</button>
+                <button class="theme-accent-btn px-2 py-1 text-xs rounded-lg transition-all text-purple-400 hover:bg-gray-800" data-palette="void" title="Void Violet">💜</button>
+            </div>
+
             <!-- SFX Toggle -->
-            <button id="btn-sfx" class="p-2 bg-gray-800/80 hover:bg-gray-700 border border-gray-700 hover:border-cyan-400 rounded-xl text-lg transition-all" title="Toggle Sound FX">
+            <button id="btn-sfx" class="p-2 bg-gray-900/90 hover:bg-gray-800 border border-gray-700 hover:border-cyan-400 rounded-xl text-base transition-all" title="Toggle Sound FX">
                 <span id="sfx-icon">🔊</span>
             </button>
 
-            <!-- Music Toggle -->
-            <button id="btn-music" class="p-2 bg-gray-800/80 hover:bg-gray-700 border border-gray-700 hover:border-cyan-400 rounded-xl text-lg transition-all" title="Toggle Background Music">
+            <!-- Music Toggle with Live Equalizer -->
+            <button id="btn-music" class="flex items-center gap-1.5 px-2.5 py-2 bg-gray-900/90 hover:bg-gray-800 border border-gray-700 hover:border-cyan-400 rounded-xl text-base transition-all" title="Toggle Background Music">
                 <span id="music-icon">🎵</span>
+                <!-- Equalizer visualizer -->
+                <div id="audio-eq" class="flex items-end gap-0.5 h-3.5 w-3.5">
+                    <div class="eq-bar eq-bar-1"></div>
+                    <div class="eq-bar eq-bar-2"></div>
+                    <div class="eq-bar eq-bar-3"></div>
+                    <div class="eq-bar eq-bar-4"></div>
+                </div>
             </button>
 
-            <!-- Theme Toggle -->
-            <button id="btn-theme" class="p-2 bg-gray-800/80 hover:bg-gray-700 border border-gray-700 hover:border-cyan-400 rounded-xl text-lg transition-all" title="Toggle Theme">
+            <!-- Light/Dark Mode Toggle -->
+            <button id="btn-theme" class="p-2 bg-gray-900/90 hover:bg-gray-800 border border-gray-700 hover:border-cyan-400 rounded-xl text-base transition-all" title="Toggle Clean/Dark Mode">
                 <span id="theme-icon">🌙</span>
             </button>
         </div>
     </header>
 
     <!-- Main Content Arena -->
-    <main class="flex-grow flex items-center justify-center p-3 md:p-5 h-full relative overflow-hidden">
+    <main class="flex-grow flex items-center justify-center p-3 md:p-5 h-full relative z-10 overflow-hidden">
         
         <!-- Setup Screen -->
-        <div id="setup-screen" class="cyber-card p-6 md:p-8 rounded-3xl w-full max-w-xl border border-cyan-500/40 shadow-[0_0_35px_rgba(0,240,255,0.15)] transform transition-all duration-300">
-            <div class="text-center mb-6">
-                <div class="inline-block p-3 rounded-2xl bg-cyan-950/60 border border-cyan-500/30 mb-2">
-                    <span class="text-4xl block animate-bounce">🍱</span>
+        <div id="setup-screen" class="cyber-card cyber-cut p-6 md:p-8 rounded-3xl w-full max-w-xl border border-cyan-500/40 shadow-[0_0_40px_rgba(0,240,255,0.2)] transform transition-all duration-300">
+            <div class="text-center mb-5">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-cyan-950/60 border border-cyan-500/40 shadow-[0_0_20px_rgba(0,240,255,0.3)] mb-2">
+                    <span class="text-3xl block animate-bounce">🍱</span>
                 </div>
-                <h2 class="text-3xl font-black font-orbitron tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-500">STREET FOOD ARENA</h2>
-                <p class="text-gray-400 font-medium text-sm mt-1">Configure your hungry squad, choose your tactical mode, and solve the bipartite matching dilemma!</p>
+                <h2 class="text-3xl font-black font-orbitron tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-500 text-glow-cyan">CYBER ARENA</h2>
+                <p class="text-gray-400 font-medium text-xs md:text-sm mt-1">Configure your squad roster, choose your tactical mission mode, and unravel the discrete math matching puzzles!</p>
             </div>
             
             <form id="setup-form" class="space-y-4">
                 <!-- Squad Members -->
-                <div class="bg-gray-900/60 p-4 rounded-2xl border border-gray-800">
-                    <label class="block text-xs uppercase font-mono text-cyan-400 font-bold mb-2 tracking-wider">👥 SQUAD ROSTER (5 AGENTS)</label>
+                <div class="bg-gray-900/70 p-4 rounded-2xl border border-gray-800 shadow-inner">
+                    <div class="flex justify-between items-center mb-2.5">
+                        <label class="block text-xs uppercase font-mono text-cyan-400 font-bold tracking-wider">👥 SQUAD ROSTER (5 AGENTS)</label>
+                        <span class="text-[10px] font-mono text-gray-500">CUSTOM NAMES SUPPORTED</span>
+                    </div>
                     <div class="grid grid-cols-2 gap-2.5">
                         <div class="relative">
-                            <input type="text" id="p1-name" required value="Rohit" class="w-full px-3 py-2 bg-gray-800/90 text-white border border-gray-700 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 outline-none transition text-sm font-semibold pl-8" placeholder="Agent 1">
-                            <span class="absolute left-2.5 top-2.5 text-xs text-cyan-400">P1</span>
+                            <input type="text" id="p1-name" required value="Rohit" class="w-full px-3 py-2 bg-gray-800/90 text-white border border-gray-700/80 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 outline-none transition text-sm font-semibold pl-8 font-rajdhani" placeholder="Agent 1">
+                            <span class="absolute left-2.5 top-2.5 text-xs font-mono font-bold text-cyan-400">P1</span>
                         </div>
                         <div class="relative">
-                            <input type="text" id="p2-name" required value="Shourya" class="w-full px-3 py-2 bg-gray-800/90 text-white border border-gray-700 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 outline-none transition text-sm font-semibold pl-8" placeholder="Agent 2">
-                            <span class="absolute left-2.5 top-2.5 text-xs text-cyan-400">P2</span>
+                            <input type="text" id="p2-name" required value="Shourya" class="w-full px-3 py-2 bg-gray-800/90 text-white border border-gray-700/80 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 outline-none transition text-sm font-semibold pl-8 font-rajdhani" placeholder="Agent 2">
+                            <span class="absolute left-2.5 top-2.5 text-xs font-mono font-bold text-cyan-400">P2</span>
                         </div>
                         <div class="relative">
-                            <input type="text" id="p3-name" required value="Aman" class="w-full px-3 py-2 bg-gray-800/90 text-white border border-gray-700 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 outline-none transition text-sm font-semibold pl-8" placeholder="Agent 3">
-                            <span class="absolute left-2.5 top-2.5 text-xs text-cyan-400">P3</span>
+                            <input type="text" id="p3-name" required value="Aman" class="w-full px-3 py-2 bg-gray-800/90 text-white border border-gray-700/80 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 outline-none transition text-sm font-semibold pl-8 font-rajdhani" placeholder="Agent 3">
+                            <span class="absolute left-2.5 top-2.5 text-xs font-mono font-bold text-cyan-400">P3</span>
                         </div>
                         <div class="relative">
-                            <input type="text" id="p4-name" required value="Priya" class="w-full px-3 py-2 bg-gray-800/90 text-white border border-gray-700 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 outline-none transition text-sm font-semibold pl-8" placeholder="Agent 4">
-                            <span class="absolute left-2.5 top-2.5 text-xs text-cyan-400">P4</span>
+                            <input type="text" id="p4-name" required value="Priya" class="w-full px-3 py-2 bg-gray-800/90 text-white border border-gray-700/80 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 outline-none transition text-sm font-semibold pl-8 font-rajdhani" placeholder="Agent 4">
+                            <span class="absolute left-2.5 top-2.5 text-xs font-mono font-bold text-cyan-400">P4</span>
                         </div>
                         <div class="col-span-2 relative">
-                            <input type="text" id="p5-name" required value="Rahul" class="w-full px-3 py-2 bg-gray-800/90 text-white border border-gray-700 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 outline-none transition text-sm font-semibold text-center" placeholder="Agent 5">
-                            <span class="absolute left-3 top-2.5 text-xs text-cyan-400">P5</span>
+                            <input type="text" id="p5-name" required value="Rahul" class="w-full px-3 py-2 bg-gray-800/90 text-white border border-gray-700/80 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 outline-none transition text-sm font-semibold text-center font-rajdhani" placeholder="Agent 5">
+                            <span class="absolute left-3 top-2.5 text-xs font-mono font-bold text-cyan-400">P5</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Game Mode Selector -->
-                <div class="bg-gray-900/60 p-4 rounded-2xl border border-gray-800">
+                <!-- Mission Mode Selector -->
+                <div class="bg-gray-900/70 p-4 rounded-2xl border border-gray-800 shadow-inner">
                     <label class="block text-xs uppercase font-mono text-cyan-400 font-bold mb-2 tracking-wider">🎮 MISSION MODE</label>
                     <div class="grid grid-cols-2 gap-3">
                         <label class="mode-card cursor-pointer p-3 rounded-xl border border-cyan-500/50 bg-cyan-950/30 hover:bg-cyan-900/30 transition flex flex-col items-center text-center">
                             <input type="radio" name="game-mode" value="campaign" checked class="hidden mode-radio">
                             <span class="text-xl mb-1">🗺️</span>
-                            <span class="font-bold text-sm text-cyan-300">Campaign (7 Stages)</span>
-                            <span class="text-[11px] text-gray-400 mt-1">Full discrete math progression & bottlenecks</span>
+                            <span class="font-bold text-sm text-cyan-300 font-orbitron">Campaign (7 Stages)</span>
+                            <span class="text-[11px] text-gray-400 mt-1 font-rajdhani">Full Discrete Math progression & bottlenecks</span>
                         </label>
                         <label class="mode-card cursor-pointer p-3 rounded-xl border border-gray-700 bg-gray-800/40 hover:bg-gray-700/40 transition flex flex-col items-center text-center">
                             <input type="radio" name="game-mode" value="rush" class="hidden mode-radio">
                             <span class="text-xl mb-1">⚡</span>
-                            <span class="font-bold text-sm text-gray-300">Cyber Rush (60s)</span>
-                            <span class="text-[11px] text-gray-400 mt-1">Frantic ticking timer, 2x combo multiplier</span>
+                            <span class="font-bold text-sm text-gray-300 font-orbitron">Cyber Rush (60s)</span>
+                            <span class="text-[11px] text-gray-400 mt-1 font-rajdhani">Ticking countdown, 2x combo multiplier</span>
                         </label>
                     </div>
                 </div>
 
                 <!-- Launch Button -->
-                <button type="submit" class="cyber-btn w-full bg-gradient-to-r from-cyan-500 via-indigo-600 to-pink-500 text-white py-3.5 px-4 rounded-2xl font-orbitron font-extrabold text-lg tracking-wider shadow-[0_0_25px_rgba(0,240,255,0.4)] hover:shadow-[0_0_35px_rgba(0,240,255,0.7)] transition-all">
-                    ENTER CYBER ARENA 🚀
+                <button type="submit" class="cyber-btn w-full bg-gradient-to-r from-cyan-500 via-indigo-600 to-pink-500 text-white py-3.5 px-4 rounded-2xl font-orbitron font-black text-lg tracking-wider shadow-[0_0_25px_rgba(0,240,255,0.4)] hover:shadow-[0_0_35px_rgba(0,240,255,0.7)] transition-all">
+                    LAUNCH SQUAD // ENTER ARENA 🚀
                 </button>
             </form>
         </div>
 
         <!-- Game Screen -->
-        <div id="game-screen" class="hidden w-full max-w-6xl cyber-card p-5 md:p-6 rounded-3xl flex flex-col h-full max-h-[88vh] border border-cyan-500/30 shadow-[0_0_30px_rgba(0,0,0,0.6)] transition-all duration-300">
+        <div id="game-screen" class="hidden w-full max-w-6xl cyber-card p-4 md:p-6 rounded-3xl flex flex-col h-full max-h-[89vh] border border-cyan-500/30 shadow-[0_0_35px_rgba(0,0,0,0.6)] transition-all duration-300 relative">
             
-            <!-- Top Controls & Objective Header -->
-            <div class="flex flex-col lg:flex-row gap-4 mb-3 items-stretch lg:items-center justify-between border-b border-gray-800/80 pb-3">
+            <!-- Sweeping Scanner Beam for Bottleneck Diagnostic -->
+            <div id="scanner-beam" class="hidden"></div>
+
+            <!-- Live SVG Laser Connector Overlay across Arena Columns -->
+            <svg id="arena-laser-svg"></svg>
+
+            <!-- Top Visual Mission Roadmap (7 Nodes) -->
+            <div class="flex items-center justify-between gap-1 mb-3 px-1 py-1.5 bg-gray-900/60 rounded-xl border border-gray-800/80 overflow-x-auto custom-scrollbar">
+                <span class="text-[10px] font-mono text-cyan-400 font-bold px-2 uppercase shrink-0">MAP:</span>
+                <div id="roadmap-container" class="flex items-center gap-1.5 md:gap-3 flex-grow justify-between min-w-[320px]">
+                    <!-- Dynamically populated 7 stage pills -->
+                </div>
+            </div>
+
+            <!-- Objective Intel & Action Command Center -->
+            <div class="flex flex-col lg:flex-row gap-3 mb-3 items-stretch lg:items-center justify-between border-b border-gray-800/80 pb-3">
                 <div class="flex-1">
                     <div class="flex items-center gap-2 mb-1">
-                        <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/40">MISSION OBJECTIVE</span>
-                        <h2 id="round-title" class="text-2xl font-black font-orbitron tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-400">Round 1</h2>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/40">MISSION INTEL</span>
+                        <h2 id="round-title" class="text-xl md:text-2xl font-black font-orbitron tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-400">Round 1</h2>
                     </div>
-                    <div class="bg-gray-900/80 p-3 rounded-xl border border-gray-800 shadow-inner">
+                    <div class="bg-gray-900/80 p-2.5 rounded-xl border border-gray-800/80 shadow-inner">
                         <p id="round-desc" class="text-xs md:text-sm text-cyan-100/90 font-medium leading-relaxed font-rajdhani"></p>
                     </div>
                 </div>
 
-                <!-- Action Command Center -->
-                <div class="flex flex-col sm:flex-row gap-2 items-center">
-                    <button id="btn-radar" class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-cyan-950 to-blue-950 border border-cyan-400/60 hover:border-cyan-300 text-cyan-300 rounded-xl font-bold font-rajdhani text-sm transition-all flex items-center justify-center gap-1.5 shadow-[0_0_12px_rgba(0,240,255,0.2)]">
-                        <span class="text-base">🛰️</span> Graph Radar
+                <!-- Tactical Commands Bar -->
+                <div class="flex flex-wrap sm:flex-nowrap gap-2 items-center">
+                    <button id="btn-radar" class="flex-1 sm:flex-none px-3.5 py-2.5 bg-gradient-to-r from-cyan-950 to-blue-950 border border-cyan-400/60 hover:border-cyan-300 text-cyan-300 rounded-xl font-bold font-rajdhani text-xs md:text-sm transition-all flex items-center justify-center gap-1.5 shadow-[0_0_12px_rgba(0,240,255,0.2)]" title="Open Full Bipartite Graph Radar">
+                        <span class="text-base">🛰️</span> Radar
                     </button>
-                    <button id="btn-submit" class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-xl font-bold font-rajdhani text-sm transition-all flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.35)]">
-                        <span class="text-base">✅</span> Submit Match
+                    <button id="btn-submit" class="flex-1 sm:flex-none px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-xl font-bold font-rajdhani text-xs md:text-sm transition-all flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.35)]">
+                        <span class="text-base">✅</span> Submit
                     </button>
-                    <button id="btn-impossible" class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white rounded-xl font-bold font-rajdhani text-sm transition-all flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(244,63,94,0.35)]">
+                    <button id="btn-impossible" class="flex-1 sm:flex-none px-4 py-2.5 bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white rounded-xl font-bold font-rajdhani text-xs md:text-sm transition-all flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(244,63,94,0.35)]">
                         <span class="text-base">🛑</span> Impossible!
                     </button>
-                    <button id="btn-rescue" class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white rounded-xl font-bold font-rajdhani text-sm transition-all flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(217,70,239,0.35)]">
-                        <span class="text-base">⚡</span> Rescue (-1 Core)
+                    <button id="btn-rescue" class="flex-1 sm:flex-none px-3.5 py-2.5 bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white rounded-xl font-bold font-rajdhani text-xs md:text-sm transition-all flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(217,70,239,0.35)]">
+                        <span class="text-base">⚡</span> Rescue
                     </button>
-                    <button id="btn-undo" class="w-full sm:w-auto px-3.5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 rounded-xl font-bold font-rajdhani text-sm transition-all flex items-center justify-center gap-1" title="Reset Placed Dishes">
+                    <button id="btn-undo" class="px-3 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 rounded-xl font-bold font-rajdhani text-xs md:text-sm transition-all flex items-center justify-center gap-1" title="Reset Placed Dishes">
                         <span class="text-base">🔄</span> Reset
                     </button>
                 </div>
             </div>
 
-            <!-- Bipartite Game Arena -->
-            <div class="flex-grow flex flex-col md:flex-row gap-4 min-h-0 overflow-hidden">
-                <!-- Column 1: Hungry Squad Receptacles -->
-                <div class="flex-[3] flex flex-col bg-gray-900/60 rounded-2xl p-3 md:p-4 border border-cyan-500/20 overflow-hidden shadow-inner">
+            <!-- Bipartite Game Arena Grid -->
+            <div class="flex-grow flex flex-col md:flex-row gap-4 min-h-0 overflow-hidden relative">
+                <!-- Column 1: Hungry Squad Stasis Pods -->
+                <div class="flex-[3] flex flex-col bg-gray-900/60 rounded-2xl p-3 md:p-4 border border-cyan-500/20 overflow-hidden shadow-inner relative">
                     <div class="flex items-center justify-between mb-2 px-1">
                         <div class="flex items-center gap-2">
-                            <span class="text-lg">👥</span>
-                            <h3 class="text-sm font-bold font-orbitron tracking-wider text-cyan-300 uppercase">HUNGRY SQUAD RECEPTACLES</h3>
+                            <span class="text-base">👥</span>
+                            <h3 class="text-xs md:text-sm font-bold font-orbitron tracking-wider text-cyan-300 uppercase">SQUAD STASIS RECEPTACLES</h3>
                         </div>
-                        <span class="text-[11px] font-mono text-gray-400">Match plates to preferences</span>
+                        <span class="text-[10px] font-mono text-gray-400">DRAG TARGET TO MATCH</span>
                     </div>
-                    <div id="drop-zones" class="flex flex-col gap-2.5 overflow-y-auto flex-grow p-1 pb-3 custom-scrollbar"></div>
+                    <div id="drop-zones" class="flex flex-col gap-2 overflow-y-auto flex-grow p-1 pb-3 custom-scrollbar"></div>
                 </div>
                 
-                <!-- Column 2: Kitchen Supplies -->
-                <div class="flex-[2] flex flex-col bg-gray-900/60 rounded-2xl p-3 md:p-4 border border-amber-500/20 overflow-hidden shadow-inner">
+                <!-- Column 2: Kitchen Supplies Supply Bay -->
+                <div class="flex-[2] flex flex-col bg-gray-900/60 rounded-2xl p-3 md:p-4 border border-amber-500/20 overflow-hidden shadow-inner relative">
                     <div class="flex items-center justify-between mb-2 px-1">
                         <div class="flex items-center gap-2">
-                            <span class="text-lg">🥘</span>
-                            <h3 class="text-sm font-bold font-orbitron tracking-wider text-amber-300 uppercase">STREET KITCHEN SUPPLY</h3>
+                            <span class="text-base">🥘</span>
+                            <h3 class="text-xs md:text-sm font-bold font-orbitron tracking-wider text-amber-300 uppercase">KITCHEN SUPPLY BAY</h3>
                         </div>
-                        <span id="supply-count" class="text-[11px] font-mono text-amber-400/80">0 DISHES</span>
+                        <span id="supply-count" class="text-[10px] font-mono text-amber-400 font-bold">0 DISHES</span>
                     </div>
-                    <div id="food-items" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-2.5 overflow-y-auto flex-grow p-1 pb-3 custom-scrollbar min-h-[100px] content-start"></div>
+                    <div id="food-items" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-2 overflow-y-auto flex-grow p-1 pb-3 custom-scrollbar min-h-[100px] content-start"></div>
                 </div>
             </div>
 
             <!-- Keyboard shortcut mini guide -->
-            <div class="hidden sm:flex justify-between items-center text-[11px] font-mono text-gray-500 border-t border-gray-800/80 pt-2 mt-2 px-1">
+            <div class="hidden sm:flex justify-between items-center text-[10px] font-mono text-gray-400 border-t border-gray-800/80 pt-2 mt-2 px-1">
                 <div class="flex gap-4">
                     <span><kbd class="px-1 py-0.5 bg-gray-800 text-gray-300 rounded border border-gray-700">Space</kbd> Submit</span>
                     <span><kbd class="px-1 py-0.5 bg-gray-800 text-gray-300 rounded border border-gray-700">I</kbd> Impossible</span>
                     <span><kbd class="px-1 py-0.5 bg-gray-800 text-gray-300 rounded border border-gray-700">U</kbd> Rescue</span>
                     <span><kbd class="px-1 py-0.5 bg-gray-800 text-gray-300 rounded border border-gray-700">R</kbd> Reset</span>
                     <span><kbd class="px-1 py-0.5 bg-gray-800 text-gray-300 rounded border border-gray-700">G</kbd> Radar</span>
+                    <span><kbd class="px-1 py-0.5 bg-gray-800 text-gray-300 rounded border border-gray-700">M</kbd> Music</span>
                 </div>
-                <div>FEEDMATCH v2.0 // DM MAL2190</div>
+                <div class="text-cyan-400 font-semibold">MAL2190 // FEEDMATCH v2.5</div>
             </div>
         </div>
 
         <!-- End Screen -->
-        <div id="end-screen" class="hidden cyber-card p-6 md:p-8 rounded-3xl w-full max-w-2xl text-center border border-cyan-500/40 shadow-[0_0_40px_rgba(0,240,255,0.2)]">
+        <div id="end-screen" class="hidden cyber-card cyber-cut p-6 md:p-8 rounded-3xl w-full max-w-2xl text-center border border-cyan-500/40 shadow-[0_0_40px_rgba(0,240,255,0.25)]">
             <span class="text-6xl mb-2 block animate-bounce">🏆</span>
             <h2 class="text-4xl md:text-5xl font-black font-orbitron tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-pink-500 to-cyan-400 mb-2">FEEDMASTER!</h2>
-            <div id="rank-badge-container" class="inline-block px-4 py-1.5 rounded-xl border border-amber-400/50 bg-amber-950/40 text-amber-300 font-orbitron font-extrabold text-xl tracking-widest mb-6">
+            <div id="rank-badge-container" class="inline-block px-5 py-1.5 rounded-xl border border-amber-400/50 bg-amber-950/40 text-amber-300 font-orbitron font-black text-xl tracking-widest mb-5">
                 RANK: <span id="final-rank">S-TIER</span>
             </div>
 
             <!-- Stats Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 font-rajdhani">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5 font-rajdhani">
                 <div class="bg-gray-900/80 p-3 rounded-2xl border border-gray-800">
-                    <span class="text-xs text-gray-400 uppercase font-mono block">CLEAR TIME</span>
+                    <span class="text-[10px] text-gray-400 uppercase font-mono block">CLEAR TIME</span>
                     <span id="final-time" class="text-xl font-orbitron font-extrabold text-cyan-300">00:00</span>
                 </div>
                 <div class="bg-gray-900/80 p-3 rounded-2xl border border-gray-800">
-                    <span class="text-xs text-gray-400 uppercase font-mono block">FINAL SCORE</span>
+                    <span class="text-[10px] text-gray-400 uppercase font-mono block">FINAL SCORE</span>
                     <span id="final-score" class="text-xl font-orbitron font-extrabold text-emerald-400">0</span>
                 </div>
                 <div class="bg-gray-900/80 p-3 rounded-2xl border border-gray-800">
-                    <span class="text-xs text-gray-400 uppercase font-mono block">MAX COMBO</span>
+                    <span class="text-[10px] text-gray-400 uppercase font-mono block">MAX COMBO</span>
                     <span id="final-combo" class="text-xl font-orbitron font-extrabold text-pink-400">3.0x</span>
                 </div>
                 <div class="bg-gray-900/80 p-3 rounded-2xl border border-gray-800">
-                    <span class="text-xs text-gray-400 uppercase font-mono block">CORES REMAINING</span>
+                    <span class="text-[10px] text-gray-400 uppercase font-mono block">CORES SAVED</span>
                     <span id="final-cores" class="text-xl font-orbitron font-extrabold text-amber-400">3/3</span>
                 </div>
             </div>
             
             <!-- Mathematical Dossier Card -->
-            <div class="bg-gray-900/90 p-5 rounded-2xl text-left mb-6 border border-cyan-500/20 shadow-inner">
-                <h3 class="text-lg font-bold font-orbitron text-cyan-300 mb-2 flex items-center gap-2">
+            <div class="bg-gray-900/90 p-4 md:p-5 rounded-2xl text-left mb-5 border border-cyan-500/20 shadow-inner">
+                <h3 class="text-sm md:text-base font-bold font-orbitron text-cyan-300 mb-2 flex items-center gap-2">
                     <span>🧠</span> DISCRETE MATHEMATICS FOUNDATION
                 </h3>
                 <ul class="space-y-2 text-xs md:text-sm text-gray-300 font-rajdhani">
@@ -296,10 +346,10 @@
 
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <button id="btn-play-again" class="cyber-btn bg-gradient-to-r from-cyan-500 via-indigo-600 to-pink-500 text-white py-3.5 px-8 rounded-xl font-orbitron font-bold text-base shadow-[0_0_20px_rgba(0,240,255,0.4)]">
+                <button id="btn-play-again" class="cyber-btn bg-gradient-to-r from-cyan-500 via-indigo-600 to-pink-500 text-white py-3.5 px-8 rounded-xl font-orbitron font-bold text-sm md:text-base shadow-[0_0_20px_rgba(0,240,255,0.4)]">
                     PLAY AGAIN 🎮
                 </button>
-                <button id="btn-share" class="px-6 py-3.5 bg-gray-800 hover:bg-gray-700 text-cyan-300 border border-cyan-500/40 rounded-xl font-bold font-rajdhani text-base transition-all flex items-center justify-center gap-2">
+                <button id="btn-share" class="px-6 py-3.5 bg-gray-800 hover:bg-gray-700 text-cyan-300 border border-cyan-500/40 rounded-xl font-bold font-rajdhani text-sm md:text-base transition-all flex items-center justify-center gap-2">
                     <span>📋</span> COPY SCORECARD
                 </button>
             </div>
@@ -307,7 +357,7 @@
     </main>
 
     <!-- Tactical Graph Radar Modal (Bipartite Graph Hologram) -->
-    <div id="radar-overlay" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 transition-opacity p-4">
+    <div id="radar-overlay" class="hidden fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center z-50 transition-opacity p-4">
         <div class="cyber-card p-5 rounded-3xl max-w-2xl w-full border border-cyan-400/50 shadow-[0_0_35px_rgba(0,240,255,0.3)] flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-800">
                 <div class="flex items-center gap-2">
@@ -336,11 +386,11 @@
     </div>
 
     <!-- Notification / Verdict Modal -->
-    <div id="modal-overlay" class="hidden fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center z-50 transition-opacity p-4">
+    <div id="modal-overlay" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 transition-opacity p-4">
         <div class="cyber-card p-6 md:p-8 rounded-3xl max-w-md w-full text-center border border-cyan-500/40 shadow-[0_0_35px_rgba(0,240,255,0.25)]" id="modal-content">
             <div id="modal-icon" class="text-5xl mb-3 animate-pulse"></div>
             <h3 id="modal-title" class="text-2xl font-black font-orbitron tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-pink-400 mb-2"></h3>
-            <p id="modal-message" class="text-gray-300 font-rajdhani text-base mb-6 leading-relaxed"></p>
+            <p id="modal-message" class="text-gray-300 font-rajdhani text-sm md:text-base mb-6 leading-relaxed"></p>
             <div class="flex flex-col gap-2.5">
                 <button id="modal-btn-primary" class="cyber-btn w-full bg-gradient-to-r from-cyan-500 to-indigo-600 text-white py-3 px-6 rounded-xl font-orbitron font-bold text-sm tracking-wide shadow-md"></button>
                 <button id="modal-btn-secondary" class="hidden w-full bg-gray-800 hover:bg-gray-700 text-gray-300 py-3 px-6 rounded-xl font-rajdhani font-bold text-sm transition"></button>
